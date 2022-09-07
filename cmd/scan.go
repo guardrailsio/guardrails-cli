@@ -1,40 +1,65 @@
-/*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
-
-*/
 package cmd
 
 import (
 	"fmt"
+	"os"
 
+	scan "github.com/guardrailsio/guardrails-cli/internal/command/scan"
+	prettyOut "github.com/guardrailsio/guardrails-cli/internal/output/pretty"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+)
+
+var (
+	token  string
+	path   string
+	format string
+	output string
+	quiet  bool
 )
 
 // scanCmd represents the scan command
 var scanCmd = &cobra.Command{
-	Use:   "scan",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Use: "scan",
+	Run: func(_ *cobra.Command, _ []string) {
+		args := &scan.Args{
+			Token:  token,
+			Path:   path,
+			Format: format,
+			Output: output,
+			Quiet:  quiet,
+		}
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("scan called")
+		// set default value to fill up optional args that has empty value
+		err := args.SetDefault()
+		if err != nil {
+			fmt.Println(prettyOut.Error(err))
+			os.Exit(1)
+		}
+
+		cmd := scan.New(args)
+
+		if err := cmd.Execute(); err != nil {
+			fmt.Println(prettyOut.Error(err))
+			os.Exit(1)
+		}
 	},
 }
 
 func init() {
+	scanCmd.Flags().StringVarP(&token, "token", "t", "", "a valid Guardrails CLI token you can obtain from dashboard > settings")
+	scanCmd.Flags().StringVarP(&path, "path", "p", "", "the path to the repository to scan, defaults to $PWD")
+	scanCmd.Flags().StringVarP(&format, "format", "f", "pretty", "the output format for scan results, defaults to pretty")
+	scanCmd.Flags().StringVarP(&output, "output", "o", "", "if provided, will save the output to the specified file path")
+	scanCmd.Flags().BoolVarP(&quiet, "quiet", "q", false, "if provided, will only output scan results in --format and nothing else")
+
+	// We can set token either from --token or GUARDRAILS_CLI_TOKEN envvar, with the later is more suitable in CICD usage
+	// where secrets are usually stored in CICD's secret vault so it won't displayed in CICD pipeline logs.
+	// If both are exists at the same time, the one from CLI params (--token) will override the one set in env var.
+	viper.BindEnv("token", "GUARDRAILS_CLI_TOKEN")
+	if tokenEnv := viper.GetString("token"); tokenEnv != "" {
+		token = tokenEnv
+	}
+
 	rootCmd.AddCommand(scanCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// scanCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// scanCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

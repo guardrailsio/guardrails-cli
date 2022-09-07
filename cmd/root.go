@@ -4,11 +4,12 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{}
+var rootCmd = &cobra.Command{
+	SilenceUsage: true,
+}
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
@@ -20,8 +21,6 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
-
 	tmpl := `
   ____                     _ ____       _ _        ____ _     ___
  / ___|_   _  __ _ _ __ __| |  _ \ __ _(_) |___   / ___| |   |_ _|
@@ -47,8 +46,4 @@ help displays this help menu
 `
 
 	rootCmd.SetHelpTemplate(tmpl)
-}
-
-func initConfig() {
-	viper.AutomaticEnv()
 }

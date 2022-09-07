@@ -1,11 +1,8 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
+	"github.com/go-git/go-git/v5"
 	scan "github.com/guardrailsio/guardrails-cli/internal/command/scan"
-	prettyOut "github.com/guardrailsio/guardrails-cli/internal/output/pretty"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -33,15 +30,18 @@ var scanCmd = &cobra.Command{
 		// set default value to fill up optional args that has empty value
 		err := args.SetDefault()
 		if err != nil {
-			fmt.Println(prettyOut.Error(err))
-			os.Exit(1)
+			fail(err)
 		}
 
-		cmd := scan.New(args)
+		gitRepo, err := git.PlainOpen(args.Path)
+		if err != nil {
+			fail(err)
+		}
+
+		cmd := scan.New(args, gitRepo)
 
 		if err := cmd.Execute(); err != nil {
-			fmt.Println(prettyOut.Error(err))
-			os.Exit(1)
+			fail(err)
 		}
 	},
 }
@@ -57,7 +57,7 @@ func init() {
 	// where secrets are usually stored in CICD's secret vault so it won't displayed in CICD pipeline logs.
 	// If both are exists at the same time, the one from CLI params (--token) will override the one set in env var.
 	viper.BindEnv("token", "GUARDRAILS_CLI_TOKEN")
-	if tokenEnv := viper.GetString("token"); tokenEnv != "" {
+	if tokenEnv := viper.GetString("token"); token == "" && tokenEnv != "" {
 		token = tokenEnv
 	}
 

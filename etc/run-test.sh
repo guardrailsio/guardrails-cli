@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+golangci-lint run --fix ./... && go test -coverprofile=coverage.out -v -p 1 ./...

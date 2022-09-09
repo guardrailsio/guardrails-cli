@@ -49,14 +49,15 @@ func isFormatAllowed(value interface{}) error {
 	}
 
 	if !isAllowed {
-		return errors.New("format unknown. Allowed format are json, csv, sarif, pretty")
+		return errors.New("unknown format. Allowed format are json, csv, sarif, pretty")
 	}
 	return nil
 }
 
 func (args Args) Validate() error {
 	return validation.ValidateStruct(&args,
-		validation.Field(&args.Token, validation.Required.Error("can't find token in --token parameter or GUARDRAILS_CLI_TOKEN environment variable")),
+		validation.Field(&args.Token, validation.
+			Required.Error("missing token, please provide your Guardrails CLI token via -—token option or GUARDRAILS_CLI_TOKEN environment variable")),
 		validation.Field(&args.Format, validation.By(isFormatAllowed)),
 	)
 }

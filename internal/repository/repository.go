@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 
 	"github.com/go-git/go-git/v5"
@@ -17,15 +18,6 @@ type Repository interface {
 	GetMetadataFromRemoteURL() (*Metadata, error)
 }
 
-func New(projectPath string) (Repository, error) {
-	client, err := git.PlainOpen(projectPath)
-	if err != nil {
-		return nil, err
-	}
-
-	return &repository{client: client}, nil
-}
-
 // Repository contains details of git repository.
 type repository struct {
 	client   *git.Repository
@@ -34,9 +26,24 @@ type repository struct {
 
 // Metadata contains repository metadata.
 type Metadata struct {
+	Path     string
 	Protocol string
 	Provider string
 	Name     string
+}
+
+// New instantiates new repository.
+func New(projectPath string) (Repository, error) {
+	client, err := git.PlainOpen(projectPath)
+	if err != nil {
+		if errors.Is(err, git.ErrRepositoryNotExists) {
+			return nil, fmt.Errorf("%s is not a valid git repository", projectPath)
+		}
+
+		return nil, err
+	}
+
+	return &repository{client: client, Metadata: &Metadata{Path: projectPath}}, nil
 }
 
 // GetMetadataFromRemoteURL extracts information from git repository remote URL and parse it to repository.Repository.
@@ -69,9 +76,9 @@ func (r *repository) GetMetadataFromRemoteURL() (*Metadata, error) {
 	nameRe := regexp.MustCompile(`\/(.*)\.git$`)
 	name := nameRe.FindStringSubmatch(matches[re.SubexpIndex("Name")])
 
-	return &Metadata{
-		Protocol: protocol,
-		Provider: provider[1],
-		Name:     name[1],
-	}, nil
+	r.Metadata.Protocol = protocol
+	r.Metadata.Provider = provider[1]
+	r.Metadata.Name = name[1]
+
+	return r.Metadata, nil
 }

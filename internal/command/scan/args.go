@@ -1,6 +1,7 @@
 package scan
 
 import (
+	"errors"
 	"os"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -32,8 +33,30 @@ func (args *Args) SetDefault() error {
 	return nil
 }
 
+func isFormatAllowed(value interface{}) error {
+	input, ok := value.(string)
+	if !ok {
+		return errors.New("failed to parse format value")
+	}
+
+	allowedFormat := []string{"json", "csv", "sarif", "pretty"}
+
+	var isAllowed bool
+	for _, f := range allowedFormat {
+		if input == f {
+			isAllowed = true
+		}
+	}
+
+	if !isAllowed {
+		return errors.New("format unknown. Allowed format are json, csv, sarif, pretty")
+	}
+	return nil
+}
+
 func (args Args) Validate() error {
 	return validation.ValidateStruct(&args,
 		validation.Field(&args.Token, validation.Required.Error("can't find token in --token parameter or GUARDRAILS_CLI_TOKEN environment variable")),
+		validation.Field(&args.Format, validation.By(isFormatAllowed)),
 	)
 }

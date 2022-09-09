@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/go-git/go-git/v5"
 	scan "github.com/guardrailsio/guardrails-cli/internal/command/scan"
+	"github.com/guardrailsio/guardrails-cli/internal/repository"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -33,12 +33,13 @@ var scanCmd = &cobra.Command{
 			fail(err)
 		}
 
-		gitRepo, err := git.PlainOpen(args.Path)
+		// set git repository client
+		repo, err := repository.New(args.Path)
 		if err != nil {
 			fail(err)
 		}
 
-		cmd := scan.New(args, gitRepo)
+		cmd := scan.New(args, repo)
 
 		if err := cmd.Execute(); err != nil {
 			fail(err)

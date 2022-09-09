@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"github.com/guardrailsio/guardrails-cli/internal/archiver"
+	guardrailsclient "github.com/guardrailsio/guardrails-cli/internal/client/guardrails"
 	scan "github.com/guardrailsio/guardrails-cli/internal/command/scan"
+	"github.com/guardrailsio/guardrails-cli/internal/config"
 	"github.com/guardrailsio/guardrails-cli/internal/repository"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -28,19 +31,30 @@ var scanCmd = &cobra.Command{
 		}
 
 		// set default value to fill up optional args that has empty value
-		err := args.SetDefault()
-		if err != nil {
+		if err := args.SetDefault(); err != nil {
+			fail(err)
+		}
+		if err := args.Validate(); err != nil {
 			fail(err)
 		}
 
-		// set git repository client
+		// instantiate configuration
+		cfg := config.New()
+
+		// setup git repository client
 		repo, err := repository.New(args.Path)
 		if err != nil {
 			fail(err)
 		}
 
-		cmd := scan.New(args, repo)
+		// setup archiver
+		arc := archiver.New()
 
+		// setup guardrails api client
+		grclient := guardrailsclient.New(cfg.HttpClient, args.Token)
+
+		// inject all scan command dependencies and execute the command
+		cmd := scan.New(args, repo, arc, grclient)
 		if err := cmd.Execute(); err != nil {
 			fail(err)
 		}

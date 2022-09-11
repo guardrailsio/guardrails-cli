@@ -3,6 +3,8 @@ package guardrailsclient
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 
 	httpClient "github.com/guardrailsio/guardrails-cli/internal/client"
@@ -16,9 +18,13 @@ var _ GuardRailsClient = (*client)(nil)
 
 // GuardRailsClient defines methods to interact with GuardRails API.
 type GuardRailsClient interface {
+	// CreateUploadURL call GuardRails API to create upload URL.
 	CreateUploadURL(projectFilename string) (string, error)
-	UploadProject(uploadURL string) error
+	// UploadProject accepts url generated from CreateUploadURL method, compress the project, and upload it to designated url.
+	UploadProject(uploadURL string, file io.Reader) error
+	// TriggerScan call GuardRails API to trigger scan operation.
 	TriggerScan() error
+	// GetScanData call GuardRails API to get scan data from scan operation.
 	GetScanData() error
 }
 
@@ -35,9 +41,9 @@ func New(cfg *config.HttpClientConfig, token string) GuardRailsClient {
 	return &client{cfg: cfg, httpclient: c, token: token}
 }
 
-// CreateUploadURL call GuardRails api to create upload URL.
+// CreateUploadURL implements guardrailsclient.GuardRailsClient interface.
 func (c *client) CreateUploadURL(projectFilename string) (string, error) {
-	url := "https://api.guardrails.io/v2/cli/trigger-zip-scan-upload-url"
+	url := "https://API.guardrails.io/v2/cli/trigger-zip-scan-upload-url"
 	contentType := "application/json"
 	req := &CreateUploadURLReq{
 		CLIToken: c.token,
@@ -62,17 +68,19 @@ func (c *client) CreateUploadURL(projectFilename string) (string, error) {
 	return respBody.SignedURL, nil
 }
 
-// UploadProject accepts url generated from CreateUploadURL method, compress the project, and upload it to designated url.
-func (c *client) UploadProject(uploadURL string) error {
+// UploadProject implements guardrailsclient.GuardRailsClient interface.
+func (c *client) UploadProject(uploadURL string, file io.Reader) error {
+	fmt.Println("UploadURL: ", uploadURL)
+
 	return nil
 }
 
-// TriggerScan call GuardRails api to trigger scan operation.
+// TriggerScan implements guardrailsclient.GuardRailsClient interface.
 func (c *client) TriggerScan() error {
 	return nil
 }
 
-// GetScanData call GuardRails api to get scan data from scan operation.
+// GetScanData implements guardrailsclient.GuardRailsClient interface.
 func (c *client) GetScanData() error {
 	return nil
 }

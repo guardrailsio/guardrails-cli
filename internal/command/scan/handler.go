@@ -38,17 +38,31 @@ func (h *Handler) Execute() error {
 
 	fmt.Printf("Project name: %s\nGit provider: %s\n", repoMetadata.Name, repoMetadata.Provider)
 
-	// create and compress git project
-	projectZipFilename := fmt.Sprintf("%s.zip", repoMetadata.Name)
-	zipFile, err := h.Archiver.OutputZipToReader(repoMetadata.Path)
+	// get list of tracked files in git repository.
+	filepaths, err := h.Repository.ListFiles()
+
+	projectZipName := fmt.Sprintf("%s.zip", repoMetadata.Name)
+	err = h.Archiver.OutputZipToFile(repoMetadata.Path, projectZipName, filepaths)
 	if err != nil {
 		return err
 	}
 
-	uploadURL, err := h.GRClient.CreateUploadURL(repoMetadata.Name)
-	if err != nil {
-		return err
-	}
+	// // pass the list of the tracked files and compress it into zip file.
+	// projectZipBuf, err := h.Archiver.OutputZipToIOReader(repoMetadata.Path, filepaths)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// projectZipName := fmt.Sprintf("%s.zip", repoMetadata.Name)
+	// uploadURL, err := h.GRClient.CreateUploadURL(projectZipName)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// err = h.GRClient.UploadProject(uploadURL, projectZipBuf)
+	// if err != nil {
+	// 	return err
+	// }
 
 	return nil
 }

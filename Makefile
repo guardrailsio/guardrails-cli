@@ -1,3 +1,6 @@
+test:
+	./etc/run-test.sh
+
 # create linux 64 bit binary.
 linux-bin:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o ./bin/guardrails-linux-amd64 .

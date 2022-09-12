@@ -33,10 +33,12 @@ type repository struct {
 
 // Metadata contains repository metadata.
 type Metadata struct {
-	Path     string
-	Protocol string
-	Provider string
-	Name     string
+	Path       string
+	Protocol   string
+	Provider   string
+	Name       string
+	Branch     string
+	CommitHash string
 }
 
 // New instantiates new repository.
@@ -80,9 +82,19 @@ func (r *repository) GetMetadataFromRemoteURL() (*Metadata, error) {
 	nameRe := regexp.MustCompile(`\/(.*)\.git$`)
 	name := nameRe.FindStringSubmatch(matches[re.SubexpIndex("Name")])
 
+	ref, err := r.client.Head()
+	if err != nil {
+		return nil, err
+	}
+
+	branchRe := regexp.MustCompile(`([^\/]+$)`)
+	branch := branchRe.FindString(ref.Name().String())
+
 	r.Metadata.Protocol = protocol
 	r.Metadata.Provider = provider[1]
 	r.Metadata.Name = name[1]
+	r.Metadata.Branch = branch
+	r.Metadata.CommitHash = ref.Hash().String()
 
 	return r.Metadata, nil
 }

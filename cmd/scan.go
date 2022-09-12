@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/guardrailsio/guardrails-cli/internal/archiver"
 	guardrailsclient "github.com/guardrailsio/guardrails-cli/internal/client/guardrails"
 	scan "github.com/guardrailsio/guardrails-cli/internal/command/scan"
@@ -22,6 +24,8 @@ var (
 var scanCmd = &cobra.Command{
 	Use: "scan",
 	Run: func(_ *cobra.Command, _ []string) {
+		ctx := context.Background()
+
 		args := &scan.Args{
 			Token:  token,
 			Path:   path,
@@ -55,7 +59,7 @@ var scanCmd = &cobra.Command{
 
 		// inject all scan command dependencies and execute the command
 		cmd := scan.New(args, repo, arc, grclient)
-		if err := cmd.Execute(); err != nil {
+		if err := cmd.Execute(ctx); err != nil {
 			fail(err)
 		}
 	},

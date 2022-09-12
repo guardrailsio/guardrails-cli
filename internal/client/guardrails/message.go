@@ -1,5 +1,7 @@
 package guardrailsclient
 
+import "io"
+
 // CreateUploadURLReq is CreateUploadURL http request body.
 type CreateUploadURLReq struct {
 	CLIToken string `json:"clitoken"`
@@ -11,6 +13,12 @@ type CreateUploadURLResp struct {
 	SignedURL string `json:"signedUrl"`
 }
 
+// UploadProjectReq is UploadProject http request body.
+type UploadProjectReq struct {
+	UploadURL string
+	File      io.Reader
+}
+
 // TriggerScanReq is TriggerScan http request body.
 type TriggerScanReq struct {
 	CLIToken   string `json:"clitoken"`
@@ -19,3 +27,6 @@ type TriggerScanReq struct {
 	Branch     string `json:"branch"`
 	FileName   string `json:"fileName"`
 }
+
+// TriggerScanResp is TriggerScan http response body.
+type TriggerScanResp struct{}

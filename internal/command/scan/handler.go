@@ -1,10 +1,11 @@
 package scan
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/guardrailsio/guardrails-cli/internal/archiver"
-	guardrailsclient "github.com/guardrailsio/guardrails-cli/internal/client/guardrails"
+	grclient "github.com/guardrailsio/guardrails-cli/internal/client/guardrails"
 	"github.com/guardrailsio/guardrails-cli/internal/repository"
 	"github.com/jedib0t/go-pretty/text"
 )
@@ -14,7 +15,7 @@ type Handler struct {
 	Args       *Args
 	Repository repository.Repository
 	Archiver   archiver.Archiver
-	GRClient   guardrailsclient.GuardRailsClient
+	GRClient   grclient.GuardRailsClient
 }
 
 // New instantiates new scan command handler.
@@ -22,13 +23,13 @@ func New(
 	args *Args,
 	repo repository.Repository,
 	arc archiver.Archiver,
-	grclient guardrailsclient.GuardRailsClient) *Handler {
+	grClient grclient.GuardRailsClient) *Handler {
 
-	return &Handler{Args: args, Repository: repo, Archiver: arc, GRClient: grclient}
+	return &Handler{Args: args, Repository: repo, Archiver: arc, GRClient: grClient}
 }
 
 // Execute runs scan command.
-func (h *Handler) Execute() error {
+func (h *Handler) Execute(ctx context.Context) error {
 	fmt.Println(text.FgCyan.Sprintf("scanning %s ...\n", h.Args.Path))
 
 	repoMetadata, err := h.Repository.GetMetadataFromRemoteURL()
@@ -41,28 +42,40 @@ func (h *Handler) Execute() error {
 	// get list of tracked files in git repository.
 	filepaths, err := h.Repository.ListFiles()
 
+	// pass the list of the tracked files and compress it into zip file.
 	projectZipName := fmt.Sprintf("%s.zip", repoMetadata.Name)
-	err = h.Archiver.OutputZipToFile(repoMetadata.Path, projectZipName, filepaths)
+	projectZipBuf, err := h.Archiver.OutputZipToIOReader(repoMetadata.Path, filepaths)
 	if err != nil {
 		return err
 	}
 
-	// // pass the list of the tracked files and compress it into zip file.
-	// projectZipBuf, err := h.Archiver.OutputZipToIOReader(repoMetadata.Path, filepaths)
-	// if err != nil {
-	// 	return err
-	// }
+	createUploadURLReq := &grclient.CreateUploadURLReq{
+		File: projectZipName,
+	}
+	createUploadURLResp, err := h.GRClient.CreateUploadURL(ctx, createUploadURLReq)
+	if err != nil {
+		return err
+	}
 
-	// projectZipName := fmt.Sprintf("%s.zip", repoMetadata.Name)
-	// uploadURL, err := h.GRClient.CreateUploadURL(projectZipName)
-	// if err != nil {
-	// 	return err
-	// }
+	uploadProjectReq := &grclient.UploadProjectReq{
+		UploadURL: createUploadURLResp.SignedURL,
+		File:      projectZipBuf,
+	}
+	err = h.GRClient.UploadProject(ctx, uploadProjectReq)
+	if err != nil {
+		return err
+	}
 
-	// err = h.GRClient.UploadProject(uploadURL, projectZipBuf)
-	// if err != nil {
-	// 	return err
-	// }
+	triggerScanReq := &grclient.TriggerScanReq{
+		Repository: repoMetadata.Name,
+		SHA:        repoMetadata.CommitHash,
+		Branch:     repoMetadata.Branch,
+		FileName:   projectZipName,
+	}
+	_, err = h.GRClient.TriggerScan(ctx, triggerScanReq)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

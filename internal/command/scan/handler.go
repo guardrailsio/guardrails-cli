@@ -41,6 +41,9 @@ func (h *Handler) Execute(ctx context.Context) error {
 
 	// get list of tracked files in git repository.
 	filepaths, err := h.Repository.ListFiles()
+	if err != nil {
+		return err
+	}
 
 	// pass the list of the tracked files and compress it into zip file.
 	projectZipName := fmt.Sprintf("%s.zip", repoMetadata.Name)

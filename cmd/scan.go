@@ -75,7 +75,10 @@ func init() {
 	// We can set token either from --token or GUARDRAILS_CLI_TOKEN envvar, with the later is more suitable in CICD usage
 	// where secrets are usually stored in CICD's secret vault so it won't displayed in CICD pipeline logs.
 	// If both are exists at the same time, the one from CLI params (--token) will override the one set in env var.
-	viper.BindEnv("token", "GUARDRAILS_CLI_TOKEN")
+	if err := viper.BindEnv("token", "GUARDRAILS_CLI_TOKEN"); err != nil {
+		fail(err)
+	}
+
 	if tokenEnv := viper.GetString("token"); token == "" && tokenEnv != "" {
 		token = tokenEnv
 	}

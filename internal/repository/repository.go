@@ -135,7 +135,13 @@ func (r *repository) ListFiles() ([]string, error) {
 	}
 
 	commit, err := r.client.CommitObject(ref.Hash())
+	if err != nil {
+		return nil, err
+	}
 	t, err := commit.Tree()
+	if err != nil {
+		return nil, err
+	}
 	treeWalker := object.NewTreeWalker(t, true, nil)
 
 TREEWALKER:

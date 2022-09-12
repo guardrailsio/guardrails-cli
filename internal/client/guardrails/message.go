@@ -29,4 +29,7 @@ type TriggerScanReq struct {
 }
 
 // TriggerScanResp is TriggerScan http response body.
-type TriggerScanResp struct{}
+type TriggerScanResp struct {
+	ScanID       string `json:"idScan"`
+	DashboardURL string `json:"dashboardUrl"`
+}

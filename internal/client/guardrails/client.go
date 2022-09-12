@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"net/http"
 
 	httpClient "github.com/guardrailsio/guardrails-cli/internal/client"
@@ -64,6 +62,10 @@ func (c *client) CreateUploadURL(ctx context.Context, req *CreateUploadURLReq) (
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return nil, httpClient.UnexpectedHTTPResponseFormatter("CreateUploadURL", resp.StatusCode, resp.Body)
+	}
+
 	respBody := new(CreateUploadURLResp)
 	if err := json.NewDecoder(resp.Body).Decode(respBody); err != nil {
 		return nil, err
@@ -87,12 +89,7 @@ func (c *client) UploadProject(ctx context.Context, req *UploadProjectReq) error
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return err
-		}
-
-		return fmt.Errorf("unexpected upload response with http status code %d: %v", resp.StatusCode, string(body))
+		return httpClient.UnexpectedHTTPResponseFormatter("UploadProject", resp.StatusCode, resp.Body)
 	}
 
 	return nil
@@ -119,6 +116,10 @@ func (c *client) TriggerScan(ctx context.Context, req *TriggerScanReq) (*Trigger
 		return nil, err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, httpClient.UnexpectedHTTPResponseFormatter("TriggerScan", resp.StatusCode, resp.Body)
+	}
 
 	respBody := new(TriggerScanResp)
 	if err := json.NewDecoder(resp.Body).Decode(respBody); err != nil {

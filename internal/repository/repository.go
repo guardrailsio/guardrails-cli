@@ -102,31 +102,6 @@ func (r *repository) GetMetadataFromRemoteURL() (*Metadata, error) {
 // ListFiles implements repository.Repository interface.
 func (r *repository) ListFiles() ([]string, error) {
 	filepaths := make([]string, 0)
-	deletedFilepaths := make([]string, 0)
-
-	// Unfortunately, the tree walker method only appends tracked file (file that already commited to git) which will leave untracked files left behind.
-	// Thus we need to retrieve the untracked files via "git status". Git status has 2 status area : worktree and staging.
-	// The difference lies whether the untracked files is already added to staging via "git add" or not. In short, we need to include untracked files in worktree area and
-	// added files in staging area. Another status that affects the ListFiles operations is "deleted" because uncommited deleted file still list in worktree but in fact
-	// has been deleted physically. Other statuses like modified or renamed won't be included.
-
-	workTree, err := r.client.Worktree()
-	if err != nil {
-		return nil, err
-	}
-	workTreeStatus, err := workTree.Status()
-	if err != nil {
-		return nil, err
-	}
-
-	for name, status := range workTreeStatus {
-		if status.Worktree == git.Untracked || status.Staging == git.Added {
-			filepaths = append(filepaths, name)
-		}
-		if status.Worktree == git.Deleted || status.Staging == git.Deleted {
-			deletedFilepaths = append(deletedFilepaths, name)
-		}
-	}
 
 	// Retrieves all tracked files inside git repository by get the HEAD commit and walk the git worktree.
 	ref, err := r.client.Head()
@@ -144,18 +119,10 @@ func (r *repository) ListFiles() ([]string, error) {
 	}
 	treeWalker := object.NewTreeWalker(t, true, nil)
 
-TREEWALKER:
 	for {
 		name, _, err := treeWalker.Next()
 		if err == io.EOF {
 			break
-		}
-
-		// TODO: we could improve this to use slices.Contains that introduced in go 1.18 but for compatibility, let's do it in the old golang way
-		for _, d := range deletedFilepaths {
-			if d == name {
-				continue TREEWALKER
-			}
 		}
 
 		isIgnored := isFileTypeIgnored(name)

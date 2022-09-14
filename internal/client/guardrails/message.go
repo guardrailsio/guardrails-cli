@@ -1,6 +1,9 @@
 package guardrailsclient
 
-import "io"
+import (
+	"io"
+	"time"
+)
 
 // CreateUploadURLReq is CreateUploadURL http request body.
 type CreateUploadURLReq struct {
@@ -32,4 +35,97 @@ type TriggerScanReq struct {
 type TriggerScanResp struct {
 	ScanID       string `json:"idScan"`
 	DashboardURL string `json:"dashboardUrl"`
+}
+
+// GetScanDataReq contains GetScanData parameters required to call GetScanData API.
+type GetScanDataReq struct {
+	ScanID string
+}
+
+// GetScanDataResp is GetScanData http response body.
+type GetScanDataResp struct {
+	ScanID  string `json:"idScan"`
+	Type    string `json:"type"`
+	Branch  string `json:"branch"`
+	SHA     string `json:"sha"`
+	OK      bool   `json:"ok"`
+	Results struct {
+		Count *getScanDataCountResp `json:"count"`
+		Rules []getScanDataRuleResp `json:"rules"`
+	} `json:"results"`
+	Repository struct {
+		RepositoryID  int64     `json:"idRepository"`
+		Name          string    `json:"name"`
+		DefaultBranch string    `json:"defaultBranch"`
+		Provider      string    `json:"provider"`
+		FullName      string    `json:"fullName"`
+		Description   string    `json:"description"`
+		Language      string    `json:"language"`
+		IsPrivate     bool      `json:"isPrivate"`
+		IsEnabled     bool      `json:"isEnabled"`
+		CreatedAt     time.Time `json:"createdAt"`
+		UpdatedAt     time.Time `json:"updatedAt"`
+	} `json:"repository"`
+	Report     string    `json:"report"`
+	QueuedAt   time.Time `json:"queuedAt"`
+	ScanningAt time.Time `json:"scanningAt"`
+	FinishedAt time.Time `json:"finishedAt"`
+	// FIXME: This is coming from old API response that we should map to Count field.
+	TotalVulnerabilities int `json:"totalVulnerabilities"`
+	NewVulnerabilities   int `json:"newVulnerabilities"`
+}
+
+type getScanDataCountResp struct {
+	Total    int `json:"total"`
+	New      int `json:"new"`
+	Open     int `json:"open"`
+	Resolved int `json:"resolved"`
+	Fixed    int `json:"fixed"`
+	Findings int `json:"findings"`
+}
+
+type getScanDataRuleResp struct {
+	Rule struct {
+		RuleID string `json:"idRule"`
+		Title  string `json:"title"`
+		Name   string `json:"name"`
+		Docs   string `json:"docs"`
+	} `json:"rule"`
+	Languages       string                           `json:"languages"`
+	Count           *getScanDataCountResp            `json:"count"`
+	Vulnerabilities []getScanDataVulnerabilitiesResp `json:"vulnerabilities"`
+}
+
+type getScanDataVulnerabilitiesResp struct {
+	FindingID    string `json:"idFinding"`
+	Status       string `json:"status"`
+	Language     string `json:"language"`
+	Branch       string `json:"branch"`
+	Path         string `json:"path"`
+	LineNumber   int64  `json:"lineNumber"`
+	IntroducedBy string `json:"introducedBy"`
+	Type         string `json:"type"`
+	Metadata     struct {
+		DependencyName  string `json:"dependencyName"`
+		CurrentVersion  string `json:"currentVersion"`
+		PatchedVersions string `json:"patchedVersions"`
+		References      string `json:"references"`
+		CvssSeverity    string `json:"cvssSeverity"`
+		CvssScore       string `json:"cvssScore"`
+		CvssVector      string `json:"cvssVector"`
+	} `json:"metadata"`
+	Severity struct {
+		SeverityID int64  `json:"idSeverity"`
+		Name       string `json:"name"`
+	} `json:"severity"`
+	EngineRule struct {
+		EngineRuleID int64  `json:"idEngineRule"`
+		Title        string `json:"title"`
+		Name         string `json:"name"`
+		Docs         string `json:"docs"`
+		EngineName   string `json:"engineName"`
+		CvssSeverity string `json:"cvssSeverity"`
+		CvssScore    int64  `json:"cvssScore"`
+		CvssVector   string `json:"cvssVector"`
+	} `json:"engineRule"`
 }

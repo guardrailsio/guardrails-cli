@@ -70,9 +70,6 @@ type GetScanDataResp struct {
 	QueuedAt   time.Time `json:"queuedAt"`
 	ScanningAt time.Time `json:"scanningAt"`
 	FinishedAt time.Time `json:"finishedAt"`
-	// FIXME: This is coming from old API response that we should map to Count field.
-	TotalVulnerabilities int `json:"totalVulnerabilities"`
-	NewVulnerabilities   int `json:"newVulnerabilities"`
 }
 
 type getScanDataCountResp struct {
@@ -86,12 +83,12 @@ type getScanDataCountResp struct {
 
 type getScanDataRuleResp struct {
 	Rule struct {
-		RuleID string `json:"idRule"`
+		RuleID int64  `json:"idRule"`
 		Title  string `json:"title"`
 		Name   string `json:"name"`
 		Docs   string `json:"docs"`
 	} `json:"rule"`
-	Languages       string                           `json:"languages"`
+	Languages       []string                         `json:"languages"`
 	Count           *getScanDataCountResp            `json:"count"`
 	Vulnerabilities []getScanDataVulnerabilitiesResp `json:"vulnerabilities"`
 }
@@ -106,13 +103,13 @@ type getScanDataVulnerabilitiesResp struct {
 	IntroducedBy string `json:"introducedBy"`
 	Type         string `json:"type"`
 	Metadata     struct {
-		DependencyName  string `json:"dependencyName"`
-		CurrentVersion  string `json:"currentVersion"`
-		PatchedVersions string `json:"patchedVersions"`
-		References      string `json:"references"`
-		CvssSeverity    string `json:"cvssSeverity"`
-		CvssScore       string `json:"cvssScore"`
-		CvssVector      string `json:"cvssVector"`
+		DependencyName  string   `json:"dependencyName"`
+		CurrentVersion  string   `json:"currentVersion"`
+		PatchedVersions string   `json:"patchedVersions"`
+		References      []string `json:"references"`
+		CvssSeverity    string   `json:"cvssSeverity"`
+		CvssScore       string   `json:"cvssScore"`
+		CvssVector      string   `json:"cvssVector"`
 	} `json:"metadata"`
 	Severity struct {
 		SeverityID int64  `json:"idSeverity"`

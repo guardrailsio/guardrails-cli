@@ -122,6 +122,7 @@ func (h *Handler) Execute(ctx context.Context) error {
 	var getScanDataResp *grclient.GetScanDataResp
 	err = backoff.Retry(func() error {
 		if getScanDataResp, err = h.GRClient.GetScanData(ctx, getScanDataReq); err != nil {
+			fmt.Printf("ERROR: %+v\n", err)
 			return err
 		}
 
@@ -132,16 +133,29 @@ func (h *Handler) Execute(ctx context.Context) error {
 	}
 	h.stopLoadingMessage()
 
-	if !h.Args.Quiet {
-		switch h.Args.Format {
-		default:
-			if getScanDataResp.TotalVulnerabilities == 0 && getScanDataResp.NewVulnerabilities == 0 {
-				fmt.Printf("\n%s", prettyFmt.Success("No issues detected, well done!"))
+	switch h.Args.Format {
+	default:
+		if getScanDataResp.OK {
+			fmt.Printf("\n%s", prettyFmt.Success("No issues detected, well done!"))
+		} else {
+			fmt.Printf("\n%s", prettyFmt.Warning(fmt.Sprintf("We detected %d security issue\n", getScanDataResp.Results.Count.Total)))
+
+			for _, r := range getScanDataResp.Results.Rules {
+				fmt.Printf("%s (%d)\n", r.Rule.Title, r.Count.Total)
+
+				for _, v := range r.Vulnerabilities {
+					fmt.Println(text.FgCyan.Sprintf("%s (line %d)", v.Path, v.LineNumber))
+				}
+
+				fmt.Println("Not sure how to fix this ?")
+				for _, l := range r.Languages {
+					fmt.Printf(text.FgBlue.Sprintf("https://docs.guardrails.io/docs/vulnerabilities/%s/%s\n", l, r.Rule.Docs))
+				}
 			}
 		}
-
-		fmt.Printf("\n\nView the detailed report in the dashboard\n%s", text.FgBlue.Sprint(triggerScanResp.DashboardURL))
 	}
+
+	fmt.Printf("\nView the detailed report in the dashboard\n%s", text.FgBlue.Sprint(getScanDataResp.Report))
 
 	return nil
 }

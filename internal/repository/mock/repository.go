@@ -48,3 +48,18 @@ func (mr *MockRepositoryMockRecorder) GetMetadataFromRemoteURL() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMetadataFromRemoteURL", reflect.TypeOf((*MockRepository)(nil).GetMetadataFromRemoteURL))
 }
+
+// ListFiles mocks base method.
+func (m *MockRepository) ListFiles() ([]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListFiles")
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListFiles indicates an expected call of ListFiles.
+func (mr *MockRepositoryMockRecorder) ListFiles() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListFiles", reflect.TypeOf((*MockRepository)(nil).ListFiles))
+}

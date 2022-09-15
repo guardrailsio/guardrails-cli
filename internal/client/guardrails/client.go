@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"os"
 
 	httpClient "github.com/guardrailsio/guardrails-cli/internal/client"
 	"github.com/guardrailsio/guardrails-cli/internal/config"
@@ -131,31 +132,44 @@ func (c *client) TriggerScan(ctx context.Context, req *TriggerScanReq) (*Trigger
 
 // GetScanData implements guardrailsclient.GuardRailsClient interface.
 func (c *client) GetScanData(ctx context.Context, req *GetScanDataReq) (*GetScanDataResp, error) {
-	url := "https://api.guardrails.io/v2/cli/scan"
+	// url := "https://api.guardrails.io/v2/cli/scan"
 
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	// httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// httpReq.Header.Set("clitoken", c.token)
+	// httpReq.Header.Set("idscan", req.ScanID)
+
+	// resp, err := c.httpclient.Do(httpReq)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// defer resp.Body.Close()
+
+	// if resp.StatusCode == http.StatusNotFound {
+	// 	return nil, httpClient.ErrNotFound
+	// }
+
+	// if resp.StatusCode != http.StatusOK {
+	// 	return nil, httpClient.UnexpectedHTTPResponseFormatter("GetScanData", resp.StatusCode, resp.Body)
+	// }
+
+	// respBody := new(GetScanDataResp)
+	// if err := json.NewDecoder(resp.Body).Decode(respBody); err != nil {
+	// 	return nil, err
+	// }
+
+	// return respBody, nil
+
+	file, err := os.Open("./get_scan_data.json")
 	if err != nil {
 		return nil, err
 	}
-	httpReq.Header.Set("clitoken", c.token)
-	httpReq.Header.Set("idscan", req.ScanID)
-
-	resp, err := c.httpclient.Do(httpReq)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode == http.StatusNotFound {
-		return nil, httpClient.ErrNotFound
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, httpClient.UnexpectedHTTPResponseFormatter("GetScanData", resp.StatusCode, resp.Body)
-	}
+	defer file.Close()
 
 	respBody := new(GetScanDataResp)
-	if err := json.NewDecoder(resp.Body).Decode(respBody); err != nil {
+	if err := json.NewDecoder(file).Decode(respBody); err != nil {
 		return nil, err
 	}
 

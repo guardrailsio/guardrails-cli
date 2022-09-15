@@ -16,6 +16,15 @@ func Error(err error) error {
 	return fmt.Errorf("%s  %s", emoji.Warning, text.FgYellow.Sprint(err.Error()))
 }
 
+// Warning returns pretty formatted warning message.
+func Warning(message string) string {
+	if message == "" {
+		return ""
+	}
+
+	return fmt.Sprintf("%s  %s", emoji.Warning, text.FgYellow.Sprint(message))
+}
+
 // Success returns pretty formatted success message.
 func Success(message string) string {
 	if message == "" {

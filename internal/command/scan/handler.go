@@ -9,6 +9,8 @@ import (
 	"github.com/guardrailsio/guardrails-cli/internal/archiver"
 	grclient "github.com/guardrailsio/guardrails-cli/internal/client/guardrails"
 	"github.com/guardrailsio/guardrails-cli/internal/config"
+	csvFmt "github.com/guardrailsio/guardrails-cli/internal/formatter/csv"
+	jsonFmt "github.com/guardrailsio/guardrails-cli/internal/formatter/json"
 	prettyFmt "github.com/guardrailsio/guardrails-cli/internal/formatter/pretty"
 	"github.com/guardrailsio/guardrails-cli/internal/repository"
 	"github.com/jedib0t/go-pretty/text"
@@ -134,25 +136,16 @@ func (h *Handler) Execute(ctx context.Context) error {
 	h.stopLoadingMessage()
 
 	switch h.Args.Format {
-	default:
-		if getScanDataResp.OK {
-			fmt.Printf("\n%s", prettyFmt.Success("No issues detected, well done!"))
-		} else {
-			fmt.Printf("\n%s", prettyFmt.Warning(fmt.Sprintf("We detected %d security issue\n", getScanDataResp.Results.Count.Total)))
-
-			for _, r := range getScanDataResp.Results.Rules {
-				fmt.Printf("%s (%d)\n", r.Rule.Title, r.Count.Total)
-
-				for _, v := range r.Vulnerabilities {
-					fmt.Println(text.FgCyan.Sprintf("%s (line %d)", v.Path, v.LineNumber))
-				}
-
-				fmt.Println("Not sure how to fix this ?")
-				for _, l := range r.Languages {
-					fmt.Printf(text.FgBlue.Sprintf("https://docs.guardrails.io/docs/vulnerabilities/%s/%s\n", l, r.Rule.Docs))
-				}
-			}
+	case "json":
+		if err := jsonFmt.ScanResult(getScanDataResp); err != nil {
+			return err
 		}
+	case "csv":
+		if err := csvFmt.ScanResult(getScanDataResp); err != nil {
+			return err
+		}
+	default:
+		prettyFmt.ScanResult(getScanDataResp)
 	}
 
 	fmt.Printf("\nView the detailed report in the dashboard\n%s", text.FgBlue.Sprint(getScanDataResp.Report))

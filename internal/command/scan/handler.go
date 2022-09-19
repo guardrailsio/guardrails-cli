@@ -12,6 +12,7 @@ import (
 	csvFmt "github.com/guardrailsio/guardrails-cli/internal/formatter/csv"
 	jsonFmt "github.com/guardrailsio/guardrails-cli/internal/formatter/json"
 	prettyFmt "github.com/guardrailsio/guardrails-cli/internal/formatter/pretty"
+	"github.com/guardrailsio/guardrails-cli/internal/outputter"
 	"github.com/guardrailsio/guardrails-cli/internal/repository"
 	"github.com/jedib0t/go-pretty/text"
 )
@@ -146,6 +147,14 @@ func (h *Handler) Execute(ctx context.Context) error {
 		}
 	default:
 		prettyFmt.ScanResult(getScanDataResp)
+	}
+
+	if h.Args.Output != "" {
+		if err := outputter.SaveToFile(h.Args.Output, getScanDataResp); err != nil {
+			fmt.Printf("\n%s\n", prettyFmt.Error(fmt.Errorf("Couldn't save output, %s", err.Error())).Error())
+		} else {
+			fmt.Printf("\n%s\n", prettyFmt.Success("Output saved"))
+		}
 	}
 
 	fmt.Printf("\nView the detailed report in the dashboard\n%s", text.FgBlue.Sprint(getScanDataResp.Report))

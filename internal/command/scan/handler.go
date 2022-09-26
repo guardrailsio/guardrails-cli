@@ -12,6 +12,7 @@ import (
 	csvFmt "github.com/guardrailsio/guardrails-cli/internal/formatter/csv"
 	jsonFmt "github.com/guardrailsio/guardrails-cli/internal/formatter/json"
 	prettyFmt "github.com/guardrailsio/guardrails-cli/internal/formatter/pretty"
+	sarifFmt "github.com/guardrailsio/guardrails-cli/internal/formatter/sarif"
 	"github.com/guardrailsio/guardrails-cli/internal/outputter"
 	"github.com/guardrailsio/guardrails-cli/internal/repository"
 	"github.com/jedib0t/go-pretty/text"
@@ -143,6 +144,10 @@ func (h *Handler) Execute(ctx context.Context) error {
 		}
 	case "csv":
 		if err := csvFmt.ScanResult(getScanDataResp); err != nil {
+			return err
+		}
+	case "sarif":
+		if err := sarifFmt.ScanResult(h.Args.Quiet, getScanDataResp); err != nil {
 			return err
 		}
 	default:

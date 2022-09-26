@@ -50,8 +50,8 @@ type GetScanDataResp struct {
 	SHA     string `json:"sha"`
 	OK      bool   `json:"ok"`
 	Results struct {
-		Count *getScanDataCountResp `json:"count"`
-		Rules []getScanDataRuleResp `json:"rules"`
+		Count *GetScanDataCountResp `json:"count"`
+		Rules []GetScanDataRuleResp `json:"rules"`
 	} `json:"results"`
 	Repository struct {
 		RepositoryID  int64     `json:"idRepository"`
@@ -72,7 +72,7 @@ type GetScanDataResp struct {
 	FinishedAt time.Time `json:"finishedAt"`
 }
 
-type getScanDataCountResp struct {
+type GetScanDataCountResp struct {
 	Total    int `json:"total"`
 	New      int `json:"new"`
 	Open     int `json:"open"`
@@ -81,7 +81,7 @@ type getScanDataCountResp struct {
 	Findings int `json:"findings"`
 }
 
-type getScanDataRuleResp struct {
+type GetScanDataRuleResp struct {
 	Rule struct {
 		RuleID int64  `json:"idRule"`
 		Title  string `json:"title"`
@@ -89,11 +89,11 @@ type getScanDataRuleResp struct {
 		Docs   string `json:"docs"`
 	} `json:"rule"`
 	Languages       []string                         `json:"languages"`
-	Count           *getScanDataCountResp            `json:"count"`
-	Vulnerabilities []getScanDataVulnerabilitiesResp `json:"vulnerabilities"`
+	Count           *GetScanDataCountResp            `json:"count"`
+	Vulnerabilities []GetScanDataVulnerabilitiesResp `json:"vulnerabilities"`
 }
 
-type getScanDataVulnerabilitiesResp struct {
+type GetScanDataVulnerabilitiesResp struct {
 	FindingID    string `json:"idFinding"`
 	Status       string `json:"status"`
 	Language     string `json:"language"`

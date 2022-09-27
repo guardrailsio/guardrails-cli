@@ -126,7 +126,6 @@ func (h *Handler) Execute(ctx context.Context) error {
 	var getScanDataResp *grclient.GetScanDataResp
 	err = backoff.Retry(func() error {
 		if getScanDataResp, err = h.GRClient.GetScanData(ctx, getScanDataReq); err != nil {
-			fmt.Printf("ERROR: %+v\n", err)
 			return err
 		}
 
@@ -156,13 +155,15 @@ func (h *Handler) Execute(ctx context.Context) error {
 
 	if h.Args.Output != "" {
 		if err := outputter.SaveToFile(h.Args.Output, getScanDataResp); err != nil {
-			fmt.Printf("\n%s\n", prettyFmt.Error(fmt.Errorf("Couldn't save output, %s", err.Error())).Error())
-		} else {
+			return fmt.Errorf("Couldn't save output, %s", err.Error())
+		} else if !h.Args.Quiet {
 			fmt.Printf("\n%s\n", prettyFmt.Success("Output saved"))
 		}
 	}
 
-	fmt.Printf("\nView the detailed report in the dashboard\n%s", text.FgBlue.Sprint(getScanDataResp.Report))
+	if !h.Args.Quiet {
+		fmt.Printf("\nView the detailed report in the dashboard\n%s", text.FgBlue.Sprint(getScanDataResp.Report))
+	}
 
 	return nil
 }

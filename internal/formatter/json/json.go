@@ -13,7 +13,7 @@ func ScanResult(result *guardrailsclient.GetScanDataResp) error {
 		return err
 	}
 
-	fmt.Printf("\n%s\n", string(manifestJson))
+	fmt.Printf("%s\n", string(manifestJson))
 
 	return nil
 }

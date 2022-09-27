@@ -44,7 +44,7 @@ func (h *Handler) displayRetrievingScanResultMessage(projectName string) {
 	if !h.Args.Quiet {
 		fmt.Println()
 		h.Spinner.Prefix = text.FgCyan.Sprintf("%s retrieving scan result of %s ", emoji.MagnifyingGlassTiltedRight, projectName)
-		h.Spinner.FinalMSG = text.FgCyan.Sprintf("%s retrieving scan result of %s %s\n", emoji.MagnifyingGlassTiltedRight, projectName, emoji.CheckMark)
+		h.Spinner.FinalMSG = text.FgCyan.Sprintf("%s retrieving scan result of %s %s\n\n", emoji.MagnifyingGlassTiltedRight, projectName, emoji.CheckMark)
 		h.Spinner.Start()
 	}
 }

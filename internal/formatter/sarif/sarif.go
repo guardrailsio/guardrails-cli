@@ -169,32 +169,32 @@ func ScanResult(isQuiet bool, scanResult *guardrailsclient.GetScanDataResp) erro
 	}
 
 	// TODO: assuming 1 driver (GuardRails) is single entry to runs
-	if len(rules) > 0 && len(results) > 0 {
-		runs = append(runs, Runs{
-			Tool: struct {
-				Driver ToolComponent `json:"driver"`
-			}{
-				Driver: ToolComponent{
-					Name:  "GuardRails",
-					Rules: rules,
-				},
+	runs = append(runs, Runs{
+		Tool: struct {
+			Driver ToolComponent `json:"driver"`
+		}{
+			Driver: ToolComponent{
+				Name:  "GuardRails",
+				Rules: rules,
 			},
-			Results: results,
-		})
-	}
+		},
+		Results: results,
+	})
 
 	schema.Runs = runs
 
-	if !isQuiet && len(schema.Runs) == 0 && scanResult.Results.Count.Total > 0 {
-		fmt.Printf("\n%s\n", prettyFmt.Success("No issues detected, well done!"))
-		fmt.Printf("(%d vulnerabilities were detected, but SARIF format only reports on static analysis)\n", scanResult.Results.Count.Total)
+	if !isQuiet {
+		if len(results) == 0 && len(rules) == 0 && scanResult.Results.Count.Total > 0 {
+			fmt.Printf("%s\n", prettyFmt.Success("No issues detected, well done!"))
+			fmt.Printf("(%d vulnerabilities were detected, but SARIF format only reports on static analysis)\n", scanResult.Results.Count.Total)
+		}
 	} else {
 		manifestJson, err := json.MarshalIndent(schema, "", "  ")
 		if err != nil {
 			return err
 		}
 
-		fmt.Printf("\n%s", string(manifestJson))
+		fmt.Printf("%s\n", string(manifestJson))
 	}
 
 	return nil

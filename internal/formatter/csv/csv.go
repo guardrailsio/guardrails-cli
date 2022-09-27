@@ -38,7 +38,7 @@ func ScanResult(result *guardrailsclient.GetScanDataResp) error {
 		return err
 	}
 
-	fmt.Printf("\n%s", string(buf.Bytes()))
+	fmt.Printf("%s", string(buf.Bytes()))
 
 	return nil
 }

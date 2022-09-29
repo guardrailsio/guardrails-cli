@@ -50,7 +50,7 @@ func ScanResult(result *guardrailsclient.GetScanDataResp) {
 
 			fmt.Println("Not sure how to fix this ?")
 			for _, l := range r.Languages {
-				fmt.Printf(text.FgBlue.Sprintf("https://docs.guardrails.io/docs/vulnerabilities/%s/%s\n", l, r.Rule.Docs))
+				fmt.Println(text.FgBlue.Sprintf("https://docs.guardrails.io/docs/vulnerabilities/%s/%s\n", l, r.Rule.Docs))
 			}
 		}
 	}

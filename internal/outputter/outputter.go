@@ -2,17 +2,17 @@ package outputter
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 
 	guardrailsclient "github.com/guardrailsio/guardrails-cli/internal/client/guardrails"
 )
 
-func SaveToFile(path string, result *guardrailsclient.GetScanDataResp) error {
+func SaveScanDataToFile(path string, result *guardrailsclient.GetScanDataResp) error {
 	file, err := json.Marshal(result)
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(path, file, 0644)
+	err = os.WriteFile(path, file, 0644)
 	if err != nil {
 		return err
 	}

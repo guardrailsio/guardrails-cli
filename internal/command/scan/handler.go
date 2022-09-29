@@ -154,7 +154,7 @@ func (h *Handler) Execute(ctx context.Context) error {
 	}
 
 	if h.Args.Output != "" {
-		if err := outputter.SaveToFile(h.Args.Output, getScanDataResp); err != nil {
+		if err := outputter.SaveScanDataToFile(h.Args.Output, getScanDataResp); err != nil {
 			return fmt.Errorf("Couldn't save output, %s", err.Error())
 		} else if !h.Args.Quiet {
 			fmt.Printf("\n%s\n", prettyFmt.Success("Output saved"))

@@ -43,6 +43,9 @@ scan scans a repository for vulnerabilities and output results
   -q, --quiet  if provided, will only output scan results in --format and nothing else
 
 help displays this help menu
+
+Environment variables:
+GUARDRAILS_CLI_TOKEN  if set, will be used as token when --token is not provided
 `
 
 	rootCmd.SetHelpTemplate(tmpl)

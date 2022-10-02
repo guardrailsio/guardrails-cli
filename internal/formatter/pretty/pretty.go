@@ -14,7 +14,7 @@ func Error(err error) error {
 		return nil
 	}
 
-	return fmt.Errorf("%s  %s", emoji.Warning, text.FgYellow.Sprint(err.Error()))
+	return fmt.Errorf("%s Error: %s", emoji.Warning, text.FgYellow.Sprint(err.Error()))
 }
 
 // Warning returns pretty formatted warning message.

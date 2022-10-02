@@ -62,8 +62,8 @@ func (c *client) CreateUploadURL(ctx context.Context, req *CreateUploadURLReq) (
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, httpClient.UnexpectedHTTPResponseFormatter("CreateUploadURL", resp.StatusCode, resp.Body)
+	if err := parseHTTPRespStatusCode("CreateUploadURL", resp); err != nil {
+		return nil, err
 	}
 
 	respBody := new(CreateUploadURLResp)
@@ -117,8 +117,8 @@ func (c *client) TriggerScan(ctx context.Context, req *TriggerScanReq) (*Trigger
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, httpClient.UnexpectedHTTPResponseFormatter("TriggerScan", resp.StatusCode, resp.Body)
+	if err := parseHTTPRespStatusCode("TriggerScan", resp); err != nil {
+		return nil, err
 	}
 
 	respBody := new(TriggerScanResp)
@@ -150,8 +150,8 @@ func (c *client) GetScanData(ctx context.Context, req *GetScanDataReq) (*GetScan
 		return nil, httpClient.ErrNotFound
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, httpClient.UnexpectedHTTPResponseFormatter("GetScanData", resp.StatusCode, resp.Body)
+	if err := parseHTTPRespStatusCode("GetScanData", resp); err != nil {
+		return nil, err
 	}
 
 	respBody := new(GetScanDataResp)

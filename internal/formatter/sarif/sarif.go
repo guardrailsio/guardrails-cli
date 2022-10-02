@@ -159,8 +159,7 @@ func ScanResult(isQuiet bool, scanResult *guardrailsclient.GetScanDataResp) erro
 				PartialFingerprints: struct {
 					PrimaryLocationLineHash string `json:"primaryLocationLineHash"`
 				}{
-					// TODO: provide the value when available
-					PrimaryLocationLineHash: "",
+					PrimaryLocationLineHash: v.PrimaryLocationLineHash,
 				},
 			}
 

@@ -13,6 +13,12 @@ import (
 // Repository variable that does static check to make sure that repository struct implements Repository interface.
 var _ Repository = (*repository)(nil)
 
+var (
+	ErrNotAValidGitRepo = func(path string) error {
+		return fmt.Errorf("%s is not a valid git repository", path)
+	}
+)
+
 //go:generate mockgen -destination=mock/repository.go -package=mockrepository . Repository
 
 // Repository defines methods to interact with git repository.
@@ -46,7 +52,7 @@ func New(projectPath string) (Repository, error) {
 	client, err := git.PlainOpen(projectPath)
 	if err != nil {
 		if errors.Is(err, git.ErrRepositoryNotExists) {
-			return nil, fmt.Errorf("%s is not a valid git repository", projectPath)
+			return nil, ErrNotAValidGitRepo(projectPath)
 		}
 
 		return nil, err

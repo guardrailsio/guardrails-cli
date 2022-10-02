@@ -5,6 +5,13 @@ import (
 	"time"
 )
 
+// ErrorResp is general error body returned from guardrails client.
+type ErrorResp struct {
+	StatusCode int    `json:"statusCode"`
+	Error      string `json:"error"`
+	Message    string `json:"message"`
+}
+
 // CreateUploadURLReq is CreateUploadURL http request body.
 type CreateUploadURLReq struct {
 	CLIToken string `json:"clitoken"`
@@ -94,15 +101,16 @@ type GetScanDataRuleResp struct {
 }
 
 type GetScanDataVulnerabilitiesResp struct {
-	FindingID    string `json:"idFinding"`
-	Status       string `json:"status"`
-	Language     string `json:"language"`
-	Branch       string `json:"branch"`
-	Path         string `json:"path"`
-	LineNumber   int64  `json:"lineNumber"`
-	IntroducedBy string `json:"introducedBy"`
-	Type         string `json:"type"`
-	Metadata     struct {
+	FindingID               string `json:"idFinding"`
+	Status                  string `json:"status"`
+	Language                string `json:"language"`
+	Branch                  string `json:"branch"`
+	Path                    string `json:"path"`
+	PrimaryLocationLineHash string `json:"primaryLocationLineHash"`
+	LineNumber              int64  `json:"lineNumber"`
+	IntroducedBy            string `json:"introducedBy"`
+	Type                    string `json:"type"`
+	Metadata                struct {
 		DependencyName  string   `json:"dependencyName"`
 		CurrentVersion  string   `json:"currentVersion"`
 		PatchedVersions string   `json:"patchedVersions"`

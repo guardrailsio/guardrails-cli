@@ -51,8 +51,8 @@ func (h *Handler) Execute(ctx context.Context) error {
 
 	if !h.Args.Quiet {
 		fmt.Printf("Project name: %s\nGit provider: %s\n", repoMetadata.Name, repoMetadata.Provider)
-		if h.Args.Format == "" || h.Args.Format == "pretty" {
-			fmt.Printf("Format: pretty (default)\n")
+		if h.Args.Format == "" || h.Args.Format == FormatPretty {
+			fmt.Printf("Format: %s (default)\n", FormatPretty)
 		} else {
 			fmt.Printf("Format: %s\n", h.Args.Format)
 		}
@@ -161,8 +161,8 @@ func (h *Handler) Execute(ctx context.Context) error {
 		}
 	}
 
-	if !h.Args.Quiet {
-		fmt.Printf("\nView the detailed report in the dashboard\n%s", text.FgBlue.Sprint(getScanDataResp.Report))
+	if !h.Args.Quiet || h.Args.Format == FormatPretty {
+		fmt.Printf("\nView the detailed report in the dashboard\n%s\n", text.FgBlue.Sprint(getScanDataResp.Report))
 	}
 
 	return nil

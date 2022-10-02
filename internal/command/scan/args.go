@@ -2,9 +2,22 @@ package scan
 
 import (
 	"errors"
+	"fmt"
 	"os"
+	"strings"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+)
+
+const (
+	FormatPretty = "pretty"
+	FormatJSON   = "json"
+	FormatCSV    = "csv"
+	FormatSARIF  = "sarif"
+)
+
+var (
+	ErrMissingToken = errors.New("missing token, please provide your Guardrails CLI token via -—token option or GUARDRAILS_CLI_TOKEN environment variable")
 )
 
 // Args provides arguments for scan command handler.
@@ -27,7 +40,7 @@ func (args *Args) SetDefault() error {
 		args.Path = cwd
 	}
 	if args.Format == "" {
-		args.Format = "pretty"
+		args.Format = FormatPretty
 	}
 
 	return nil
@@ -39,7 +52,7 @@ func isFormatAllowed(value interface{}) error {
 		return errors.New("failed to parse format value")
 	}
 
-	allowedFormat := []string{"json", "csv", "sarif", "pretty"}
+	allowedFormat := []string{FormatJSON, FormatCSV, FormatSARIF, FormatPretty}
 
 	var isAllowed bool
 	for _, f := range allowedFormat {
@@ -49,7 +62,7 @@ func isFormatAllowed(value interface{}) error {
 	}
 
 	if !isAllowed {
-		return errors.New("unknown format. Allowed format are json, csv, sarif, pretty")
+		return fmt.Errorf("unknown format. Allowed format are %s", strings.Join(allowedFormat, ", "))
 	}
 	return nil
 }
@@ -57,7 +70,7 @@ func isFormatAllowed(value interface{}) error {
 func (args Args) Validate() error {
 	return validation.ValidateStruct(&args,
 		validation.Field(&args.Token, validation.
-			Required.Error("missing token, please provide your Guardrails CLI token via -—token option or GUARDRAILS_CLI_TOKEN environment variable")),
+			Required.Error(ErrMissingToken.Error())),
 		validation.Field(&args.Format, validation.By(isFormatAllowed)),
 	)
 }

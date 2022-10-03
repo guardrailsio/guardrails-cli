@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	prettyFmt "github.com/guardrailsio/guardrails-cli/internal/formatter/pretty"
+	prettyFmt "github.com/guardrailsio/guardrails-cli/internal/format/pretty"
 )
 
 func fail(err error) {

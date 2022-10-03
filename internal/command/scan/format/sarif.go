@@ -1,12 +1,13 @@
-package sarif
+package scanformat
 
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"strconv"
 
 	guardrailsclient "github.com/guardrailsio/guardrails-cli/internal/client/guardrails"
-	prettyFmt "github.com/guardrailsio/guardrails-cli/internal/formatter/pretty"
+	prettyFmt "github.com/guardrailsio/guardrails-cli/internal/format/pretty"
 )
 
 const SCAVulnerabilityType = "sca"
@@ -73,7 +74,8 @@ type Location struct {
 	} `json:"region"`
 }
 
-func ScanResult(isQuiet bool, scanResult *guardrailsclient.GetScanDataResp) error {
+// GetScanDataJSONFormat parses guardrailsclient.GetScanDataResp to sarif format.
+func GetScanDataSARIFFormat(w io.Writer, resp *guardrailsclient.GetScanDataResp, isQuiet bool) error {
 	schema := &Schema{
 		Schema:  "https://json.schemastore.org/sarif-2.1.0.json",
 		Version: "2.1.0",
@@ -82,7 +84,7 @@ func ScanResult(isQuiet bool, scanResult *guardrailsclient.GetScanDataResp) erro
 	runs := make([]Runs, 0)
 	rules := make([]ReportingDescriptor, 0)
 	results := make([]Result, 0)
-	for _, r := range scanResult.Results.Rules {
+	for _, r := range resp.Results.Rules {
 		for _, v := range r.Vulnerabilities {
 			if v.Type == SCAVulnerabilityType {
 				continue
@@ -183,9 +185,9 @@ func ScanResult(isQuiet bool, scanResult *guardrailsclient.GetScanDataResp) erro
 	schema.Runs = runs
 
 	if !isQuiet {
-		if len(results) == 0 && len(rules) == 0 && scanResult.Results.Count.Total > 0 {
-			fmt.Printf("%s\n", prettyFmt.Success("No issues detected, well done!"))
-			fmt.Printf("(%d vulnerabilities were detected, but SARIF format only reports on static analysis)\n", scanResult.Results.Count.Total)
+		if len(results) == 0 && len(rules) == 0 && resp.Results.Count.Total > 0 {
+			fmt.Fprintf(w, "%s\n", prettyFmt.Success("No issues detected, well done!"))
+			fmt.Fprintf(w, "(%d vulnerabilities were detected, but SARIF format only reports on static analysis)\n", resp.Results.Count.Total)
 		}
 	} else {
 		manifestJson, err := json.MarshalIndent(schema, "", "  ")
@@ -193,7 +195,7 @@ func ScanResult(isQuiet bool, scanResult *guardrailsclient.GetScanDataResp) erro
 			return err
 		}
 
-		fmt.Printf("%s\n", string(manifestJson))
+		fmt.Fprintf(w, "%s\n", string(manifestJson))
 	}
 
 	return nil

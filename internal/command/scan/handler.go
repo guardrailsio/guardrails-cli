@@ -9,23 +9,27 @@ import (
 	"github.com/guardrailsio/guardrails-cli/internal/archiver"
 	grclient "github.com/guardrailsio/guardrails-cli/internal/client/guardrails"
 	"github.com/guardrailsio/guardrails-cli/internal/config"
-	csvFmt "github.com/guardrailsio/guardrails-cli/internal/formatter/csv"
-	jsonFmt "github.com/guardrailsio/guardrails-cli/internal/formatter/json"
-	prettyFmt "github.com/guardrailsio/guardrails-cli/internal/formatter/pretty"
-	sarifFmt "github.com/guardrailsio/guardrails-cli/internal/formatter/sarif"
-	"github.com/guardrailsio/guardrails-cli/internal/outputter"
+	prettyFmt "github.com/guardrailsio/guardrails-cli/internal/format/pretty"
+	outputwriter "github.com/guardrailsio/guardrails-cli/internal/output"
 	"github.com/guardrailsio/guardrails-cli/internal/repository"
 	"github.com/jedib0t/go-pretty/text"
 )
 
+var (
+	ErrFailedToSaveOutput = func(err error) error {
+		return fmt.Errorf("Couldn't save output, %s", err.Error())
+	}
+)
+
 // Handler contains scan command dependencies.
 type Handler struct {
-	Args       *Args
-	Spinner    *spinner.Spinner
-	Config     *config.Config
-	Repository repository.Repository
-	Archiver   archiver.Archiver
-	GRClient   grclient.GuardRailsClient
+	Args         *Args
+	Spinner      *spinner.Spinner
+	Config       *config.Config
+	OutputWriter *outputwriter.OutputWriter
+	Repository   repository.Repository
+	Archiver     archiver.Archiver
+	GRClient     grclient.GuardRailsClient
 }
 
 // New instantiates new scan command handler.
@@ -35,13 +39,24 @@ func New(
 	config *config.Config,
 	repo repository.Repository,
 	arc archiver.Archiver,
+	out *outputwriter.OutputWriter,
 	grClient grclient.GuardRailsClient) *Handler {
 
-	return &Handler{Args: args, Spinner: spinner, Config: config, Repository: repo, Archiver: arc, GRClient: grClient}
+	return &Handler{
+		Args:         args,
+		Spinner:      spinner,
+		Config:       config,
+		Repository:   repo,
+		Archiver:     arc,
+		OutputWriter: out,
+		GRClient:     grClient,
+	}
 }
 
 // Execute runs scan command.
 func (h *Handler) Execute(ctx context.Context) error {
+	w := h.OutputWriter.Writer
+
 	h.displayScanningMessage()
 	repoMetadata, err := h.Repository.GetMetadataFromRemoteURL()
 	if err != nil {
@@ -50,17 +65,17 @@ func (h *Handler) Execute(ctx context.Context) error {
 	h.stopLoadingMessage()
 
 	if !h.Args.Quiet {
-		fmt.Printf("Project name: %s\nGit provider: %s\n", repoMetadata.Name, repoMetadata.Provider)
+		fmt.Fprintf(w, "Project name: %s\nGit provider: %s\n", repoMetadata.Name, repoMetadata.Provider)
 		if h.Args.Format == "" || h.Args.Format == FormatPretty {
-			fmt.Printf("Format: %s (default)\n", FormatPretty)
+			fmt.Fprintf(w, "Format: %s (default)\n", FormatPretty)
 		} else {
-			fmt.Printf("Format: %s\n", h.Args.Format)
+			fmt.Fprintf(w, "Format: %s\n", h.Args.Format)
 		}
 
 		if h.Args.Output == "" {
-			fmt.Printf("Output: none\n")
+			fmt.Fprintf(w, "Output: none\n")
 		} else {
-			fmt.Printf("Output: %s\n", h.Args.Output)
+			fmt.Fprintf(w, "Output: %s\n", h.Args.Output)
 		}
 	}
 
@@ -136,33 +151,20 @@ func (h *Handler) Execute(ctx context.Context) error {
 	}
 	h.stopLoadingMessage()
 
-	switch h.Args.Format {
-	case "json":
-		if err := jsonFmt.ScanResult(getScanDataResp); err != nil {
-			return err
-		}
-	case "csv":
-		if err := csvFmt.ScanResult(getScanDataResp); err != nil {
-			return err
-		}
-	case "sarif":
-		if err := sarifFmt.ScanResult(h.Args.Quiet, getScanDataResp); err != nil {
-			return err
-		}
-	default:
-		prettyFmt.ScanResult(getScanDataResp)
-	}
-
-	if h.Args.Output != "" {
-		if err := outputter.SaveScanDataToFile(h.Args.Output, getScanDataResp); err != nil {
-			return fmt.Errorf("Couldn't save output, %s", err.Error())
-		} else if !h.Args.Quiet {
-			fmt.Printf("\n%s\n", prettyFmt.Success("Output saved"))
-		}
+	if err := h.GetScanDataFormatter(getScanDataResp); err != nil {
+		return err
 	}
 
 	if !h.Args.Quiet || h.Args.Format == FormatPretty {
-		fmt.Printf("\nView the detailed report in the dashboard\n%s\n", text.FgBlue.Sprint(getScanDataResp.Report))
+		fmt.Fprintf(w, "\nView the detailed report in the dashboard\n%s\n", text.FgBlue.Sprint(getScanDataResp.Report))
+	}
+
+	if h.Args.Output != "" {
+		if err := h.OutputWriter.SaveBufferToFile(); err != nil {
+			return ErrFailedToSaveOutput(err)
+		} else if !h.Args.Quiet {
+			fmt.Printf("\n%s\n", prettyFmt.Success("Output saved"))
+		}
 	}
 
 	return nil

@@ -7,6 +7,7 @@ import (
 	guardrailsclient "github.com/guardrailsio/guardrails-cli/internal/client/guardrails"
 	scan "github.com/guardrailsio/guardrails-cli/internal/command/scan"
 	"github.com/guardrailsio/guardrails-cli/internal/config"
+	outputwriter "github.com/guardrailsio/guardrails-cli/internal/output"
 	"github.com/guardrailsio/guardrails-cli/internal/repository"
 	spinner "github.com/guardrailsio/guardrails-cli/internal/tools/spinner"
 	"github.com/spf13/cobra"
@@ -58,11 +59,15 @@ var scanCmd = &cobra.Command{
 		// setup guardrails api client
 		grclient := guardrailsclient.New(cfg.HttpClient, args.Token)
 
+		// setup output writer
+		outputWriter := outputwriter.New(args.Output)
+		outputWriter.SetWriter()
+
 		// setup spinner animation
 		spinner := spinner.New()
 
 		// inject all scan command dependencies and execute the command
-		cmd := scan.New(args, spinner, cfg, repo, arc, grclient)
+		cmd := scan.New(args, spinner, cfg, repo, arc, outputWriter, grclient)
 		if err := cmd.Execute(ctx); err != nil {
 			fail(err)
 		}

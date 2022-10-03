@@ -35,14 +35,14 @@ Commands:
        [-o,--output=<path>][-q,--quiet]
   help
 
-scan scans a repository for vulnerabilities and output results
+scan: scans a repository for vulnerabilities and output results
   -t, --token  a valid Guardrails CLI token you can obtain from dashboard > settings
   -p, --path   the path to the repository to scan, defaults to $PWD
   -f, --format the output format for scan results, defaults to pretty
   -o, --output if provided, will save the output to the specified file path
   -q, --quiet  if provided, will only output scan results in --format and nothing else
 
-help displays this help menu
+help: displays this help menu
 
 Environment variables:
 GUARDRAILS_CLI_TOKEN  if set, will be used as token when --token is not provided

@@ -16,6 +16,7 @@ import (
 	grclient "github.com/guardrailsio/guardrails-cli/internal/client/guardrails"
 	mockgrclient "github.com/guardrailsio/guardrails-cli/internal/client/guardrails/mock"
 	"github.com/guardrailsio/guardrails-cli/internal/config"
+	outputwriter "github.com/guardrailsio/guardrails-cli/internal/output"
 	"github.com/guardrailsio/guardrails-cli/internal/repository"
 	mockrepository "github.com/guardrailsio/guardrails-cli/internal/repository/mock"
 	"github.com/guardrailsio/guardrails-cli/internal/tools/spinner"
@@ -33,6 +34,8 @@ func TestScanCommandExecuteSuccess(t *testing.T) {
 		Quiet:  true,
 	}
 	cfg := config.New()
+	outputWriter := outputwriter.New(args.Output)
+	outputWriter.SetWriter()
 	spinner := spinner.New()
 
 	mockCtrl := gomock.NewController(t)
@@ -134,7 +137,7 @@ func TestScanCommandExecuteSuccess(t *testing.T) {
 		mockGrClient.EXPECT().GetScanData(ctx, getScanDataReq).Return(getScanDataResp, nil),
 	)
 
-	cmd := New(args, spinner, cfg, mockRepo, mockArc, mockGrClient)
+	cmd := New(args, spinner, cfg, mockRepo, mockArc, outputWriter, mockGrClient)
 	err = cmd.Execute(ctx)
 	assert.Nil(t, err)
 }

@@ -35,9 +35,7 @@ type client struct {
 
 // New instantiates new GuardRailsClient.
 func New(cfg *config.HttpClientConfig, token string) GuardRailsClient {
-	c := httpClient.New(cfg)
-
-	return &client{cfg: cfg, httpclient: c, token: token}
+	return &client{cfg: cfg, httpclient: new(http.Client), token: token}
 }
 
 // CreateUploadURL implements guardrailsclient.GuardRailsClient interface.
@@ -49,6 +47,9 @@ func (c *client) CreateUploadURL(ctx context.Context, req *CreateUploadURLReq) (
 	if err != nil {
 		return nil, err
 	}
+
+	ctx, cancel := context.WithTimeout(ctx, c.cfg.Timeout)
+	defer cancel()
 
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(reqBody))
 	if err != nil {
@@ -105,6 +106,9 @@ func (c *client) TriggerScan(ctx context.Context, req *TriggerScanReq) (*Trigger
 		return nil, err
 	}
 
+	ctx, cancel := context.WithTimeout(ctx, c.cfg.Timeout)
+	defer cancel()
+
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(reqBody))
 	if err != nil {
 		return nil, err
@@ -132,6 +136,9 @@ func (c *client) TriggerScan(ctx context.Context, req *TriggerScanReq) (*Trigger
 // GetScanData implements guardrailsclient.GuardRailsClient interface.
 func (c *client) GetScanData(ctx context.Context, req *GetScanDataReq) (*GetScanDataResp, error) {
 	url := "https://api.guardrails.io/v2/cli/scan"
+
+	ctx, cancel := context.WithTimeout(ctx, c.cfg.Timeout)
+	defer cancel()
 
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {

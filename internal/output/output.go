@@ -15,17 +15,19 @@ type OutputWriter struct {
 }
 
 func New(outputPath string) *OutputWriter {
+	var w io.Writer
+	buf := new(bytes.Buffer)
+
+	if outputPath == "" {
+		w = os.Stdout
+	} else {
+		w = io.MultiWriter(os.Stdout, buf)
+	}
+
 	return &OutputWriter{
 		Path:   outputPath,
-		Buffer: new(bytes.Buffer),
-	}
-}
-
-func (o *OutputWriter) SetWriter() {
-	if o.Path == "" {
-		o.Writer = os.Stdout
-	} else {
-		o.Writer = io.MultiWriter(os.Stdout, o.Buffer)
+		Buffer: buf,
+		Writer: w,
 	}
 }
 

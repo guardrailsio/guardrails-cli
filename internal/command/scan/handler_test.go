@@ -35,7 +35,6 @@ func TestScanCommandExecuteSuccess(t *testing.T) {
 	}
 	cfg := config.New()
 	outputWriter := outputwriter.New(args.Output)
-	outputWriter.SetWriter()
 	spinner := spinner.New()
 
 	mockCtrl := gomock.NewController(t)

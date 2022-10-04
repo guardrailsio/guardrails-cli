@@ -61,7 +61,6 @@ var scanCmd = &cobra.Command{
 
 		// setup output writer
 		outputWriter := outputwriter.New(args.Output)
-		outputWriter.SetWriter()
 
 		// setup spinner animation
 		spinner := spinner.New()

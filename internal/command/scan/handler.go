@@ -165,6 +165,9 @@ func (h *Handler) Execute(ctx context.Context) error {
 		} else if !h.Args.Quiet {
 			fmt.Printf("\n%s\n", prettyFmt.Success("Output saved"))
 		}
+
+		// make the buffer empty again.
+		h.OutputWriter.Buffer.Reset()
 	}
 
 	return nil

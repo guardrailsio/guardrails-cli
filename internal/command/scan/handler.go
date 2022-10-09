@@ -94,7 +94,7 @@ func (h *Handler) Execute(ctx context.Context) error {
 	h.stopLoadingMessage()
 
 	// create presigned url for uploading the compressed file
-	projectZipName := fmt.Sprintf("%s.zip", repoMetadata.Name)
+	projectZipName := fmt.Sprintf("%s_%s.tar.gz", repoMetadata.Name, repoMetadata.CommitHash)
 	createUploadURLReq := &grclient.CreateUploadURLReq{
 		File: projectZipName,
 	}

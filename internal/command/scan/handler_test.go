@@ -92,7 +92,7 @@ func TestScanCommandExecuteSuccess(t *testing.T) {
 		"internal/tools/spinner/spinner.go",
 		"main.go",
 	}
-	fileZipName := fmt.Sprintf("%s.zip", repoMetadata.Name)
+	fileZipName := fmt.Sprintf("%s_%s.tar.gz", repoMetadata.Name, repoMetadata.CommitHash)
 	fileZipByte := bytes.NewReader([]byte{})
 	createUploadURLReq := &grclient.CreateUploadURLReq{
 		File: fileZipName,

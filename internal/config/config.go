@@ -2,6 +2,12 @@ package config
 
 import "time"
 
+// Config provides centralized configuration for the application.
+type Config struct {
+	HttpClient       *HttpClientConfig
+	GuardRailsClient *GuardRailsClient
+}
+
 // New instantiates new config.
 func New() *Config {
 	return &Config{
@@ -10,12 +16,8 @@ func New() *Config {
 			Timeout:         2 * time.Second,
 			RetryTimeout:    30 * time.Minute,
 		},
+		GuardRailsClient: NewGuardRailsClientConfig(),
 	}
-}
-
-// Config provides centralized configuration for the application.
-type Config struct {
-	HttpClient *HttpClientConfig
 }
 
 // HttpClientConfig provides configuration for guardrails cli http client.

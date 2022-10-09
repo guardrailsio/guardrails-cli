@@ -14,7 +14,12 @@ func GetScanDataPrettyFormat(w io.Writer, resp *guardrailsclient.GetScanDataResp
 	if resp.OK {
 		fmt.Fprintf(w, "%s\n", prettyFmt.Success("No issues detected, well done!"))
 	} else {
-		fmt.Fprintf(w, "%s\n", prettyFmt.Warning(fmt.Sprintf("We detected %d security issue", resp.Results.Count.Total)))
+		issueStr := "issue"
+		if resp.Results.Count.Total > 1 {
+			issueStr += "s"
+		}
+
+		fmt.Fprintf(w, "%s\n", prettyFmt.Warning(fmt.Sprintf("We detected %d security %s", resp.Results.Count.Total, issueStr)))
 
 		for _, r := range resp.Results.Rules {
 			fmt.Fprintf(w, "%s (%d)\n", r.Rule.Title, r.Count.Total)

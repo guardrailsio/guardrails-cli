@@ -57,7 +57,7 @@ var scanCmd = &cobra.Command{
 		arc := archiver.New()
 
 		// setup guardrails api client
-		grclient := guardrailsclient.New(cfg.HttpClient, args.Token)
+		grclient := guardrailsclient.New(cfg, args.Token)
 
 		// setup output writer
 		outputWriter := outputwriter.New(args.Output)

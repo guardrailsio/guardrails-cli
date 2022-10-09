@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	httpClient "github.com/guardrailsio/guardrails-cli/internal/client"
@@ -28,19 +29,19 @@ type GuardRailsClient interface {
 }
 
 type client struct {
-	cfg        *config.HttpClientConfig
+	cfg        *config.Config
 	httpclient *http.Client
 	token      string
 }
 
 // New instantiates new GuardRailsClient.
-func New(cfg *config.HttpClientConfig, token string) GuardRailsClient {
+func New(cfg *config.Config, token string) GuardRailsClient {
 	return &client{cfg: cfg, httpclient: new(http.Client), token: token}
 }
 
 // CreateUploadURL implements guardrailsclient.GuardRailsClient interface.
 func (c *client) CreateUploadURL(ctx context.Context, req *CreateUploadURLReq) (*CreateUploadURLResp, error) {
-	url := "https://API.guardrails.io/v2/cli/trigger-zip-scan-upload-url"
+	url := fmt.Sprintf("%s/v2/cli/trigger-zip-scan-upload-url", c.cfg.GuardRailsClient.APIHost)
 
 	req.CLIToken = c.token
 	reqBody, err := json.Marshal(req)
@@ -48,7 +49,7 @@ func (c *client) CreateUploadURL(ctx context.Context, req *CreateUploadURLReq) (
 		return nil, err
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, c.cfg.Timeout)
+	ctx, cancel := context.WithTimeout(ctx, c.cfg.HttpClient.Timeout)
 	defer cancel()
 
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(reqBody))
@@ -98,7 +99,7 @@ func (c *client) UploadProject(ctx context.Context, req *UploadProjectReq) error
 
 // TriggerScan implements guardrailsclient.GuardRailsClient interface.
 func (c *client) TriggerScan(ctx context.Context, req *TriggerScanReq) (*TriggerScanResp, error) {
-	url := "https://api.guardrails.io/v2/cli/trigger-zip-scan"
+	url := fmt.Sprintf("%s/v2/cli/trigger-zip-scan", c.cfg.GuardRailsClient.APIHost)
 
 	req.CLIToken = c.token
 	reqBody, err := json.Marshal(req)
@@ -106,7 +107,7 @@ func (c *client) TriggerScan(ctx context.Context, req *TriggerScanReq) (*Trigger
 		return nil, err
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, c.cfg.Timeout)
+	ctx, cancel := context.WithTimeout(ctx, c.cfg.HttpClient.Timeout)
 	defer cancel()
 
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(reqBody))
@@ -135,9 +136,9 @@ func (c *client) TriggerScan(ctx context.Context, req *TriggerScanReq) (*Trigger
 
 // GetScanData implements guardrailsclient.GuardRailsClient interface.
 func (c *client) GetScanData(ctx context.Context, req *GetScanDataReq) (*GetScanDataResp, error) {
-	url := "https://api.guardrails.io/v2/cli/scan"
+	url := fmt.Sprintf("%s/v2/cli/scan", c.cfg.GuardRailsClient.APIHost)
 
-	ctx, cancel := context.WithTimeout(ctx, c.cfg.Timeout)
+	ctx, cancel := context.WithTimeout(ctx, c.cfg.HttpClient.Timeout)
 	defer cancel()
 
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)

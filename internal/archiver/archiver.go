@@ -1,8 +1,9 @@
 package archiver
 
 import (
-	"archive/zip"
+	"archive/tar"
 	"bytes"
+	"compress/gzip"
 	"io"
 	"os"
 	"path/filepath"
@@ -42,23 +43,33 @@ func (a *archiver) OutputZipToFile(projectPath, outputPath string, filepaths []s
 		}
 	}()
 
-	return zipper(projectPath, filepaths, outputFile)
+	return compress(projectPath, filepaths, outputFile)
 }
 
 // OutputZipToIOReader implements archiver.Archiver interface.
 func (a *archiver) OutputZipToIOReader(projectPath string, filepaths []string) (io.Reader, error) {
 	outputBuf := new(bytes.Buffer)
-	if err := zipper(projectPath, filepaths, outputBuf); err != nil {
+	if err := compress(projectPath, filepaths, outputBuf); err != nil {
 		return nil, err
 	}
 
 	return outputBuf, nil
 }
 
-func zipper(projectPath string, filepaths []string, output io.Writer) (err error) {
-	w := zip.NewWriter(output)
+func compress(projectPath string, filepaths []string, output io.Writer) (err error) {
+	gzipWriter, err := gzip.NewWriterLevel(output, gzip.BestCompression)
+	if err != nil {
+		return err
+	}
 	defer func() {
-		closeErr := w.Close()
+		closeErr := gzipWriter.Close()
+		if err == nil {
+			err = closeErr
+		}
+	}()
+	tarWriter := tar.NewWriter(gzipWriter)
+	defer func() {
+		closeErr := tarWriter.Close()
 		if err == nil {
 			err = closeErr
 		}
@@ -69,18 +80,18 @@ func zipper(projectPath string, filepaths []string, output io.Writer) (err error
 		// path/filepath packages works cross platform which will use appropriate file separator based on OS.
 		fullpath := filepath.Join(projectPath, path)
 
-		in, err := os.Open(fullpath)
+		file, err := os.Open(fullpath)
 		if err != nil {
 			return err
 		}
 		defer func() {
-			closeErr := in.Close()
+			closeErr := file.Close()
 			if err == nil {
 				err = closeErr
 			}
 		}()
 
-		fileInfo, err := in.Stat()
+		fileInfo, err := file.Stat()
 		if err != nil {
 			return err
 		}
@@ -88,15 +99,17 @@ func zipper(projectPath string, filepaths []string, output io.Writer) (err error
 			continue
 		}
 
-		// Strip the absolute path up to the current directory, then trim off a leading
-		// path separator (for Windows) and replace all instances of Windows path separators
-		// with forward slashes as required by the w.Create method.
-		f, err := w.Create(strings.Replace(strings.TrimPrefix(path, string(filepath.Separator)), "\\", "/", -1))
+		header, err := tar.FileInfoHeader(fileInfo, fileInfo.Name())
+		if err != nil {
+			return err
+		}
+		header.Name = strings.Replace(strings.TrimPrefix(path, string(filepath.Separator)), "\\", "/", -1)
+		err = tarWriter.WriteHeader(header)
 		if err != nil {
 			return err
 		}
 
-		_, err = io.Copy(f, in)
+		_, err = io.Copy(tarWriter, file)
 		if err != nil {
 			return err
 		}

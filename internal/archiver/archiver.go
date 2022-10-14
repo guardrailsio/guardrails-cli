@@ -76,44 +76,58 @@ func compress(projectPath string, filepaths []string, output io.Writer) (err err
 	}()
 
 	for _, path := range filepaths {
-		// path variables only contains relative path of the project root, so we need to append project path to get absolute path.
-		// path/filepath packages works cross platform which will use appropriate file separator based on OS.
-		fullpath := filepath.Join(projectPath, path)
-
-		file, err := os.Open(fullpath)
+		isDir, err := compressFile(projectPath, path, tarWriter)
 		if err != nil {
 			return err
 		}
-		defer func() {
-			closeErr := file.Close()
-			if err == nil {
-				err = closeErr
-			}
-		}()
-
-		fileInfo, err := file.Stat()
-		if err != nil {
-			return err
-		}
-		if fileInfo.IsDir() {
+		if isDir {
 			continue
-		}
-
-		header, err := tar.FileInfoHeader(fileInfo, fileInfo.Name())
-		if err != nil {
-			return err
-		}
-		header.Name = strings.Replace(strings.TrimPrefix(path, string(filepath.Separator)), "\\", "/", -1)
-		err = tarWriter.WriteHeader(header)
-		if err != nil {
-			return err
-		}
-
-		_, err = io.Copy(tarWriter, file)
-		if err != nil {
-			return err
 		}
 	}
 
 	return nil
+}
+
+func compressFile(projectPath, path string, writer *tar.Writer) (bool, error) {
+	// path variables only contains relative path of the project root, so we need to append project path to get absolute path.
+	// path/filepath packages works cross platform which will use appropriate file separator based on OS.
+	fullpath := filepath.Join(projectPath, path)
+
+	file, err := os.Open(fullpath)
+	if err != nil {
+		return false, err
+	}
+
+	defer func() {
+		closeErr := file.Close()
+		if err == nil {
+			err = closeErr
+		}
+	}()
+
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return false, err
+	}
+	if fileInfo.IsDir() {
+		return true, nil
+	}
+
+	header, err := tar.FileInfoHeader(fileInfo, fileInfo.Name())
+	if err != nil {
+		return false, err
+	}
+
+	header.Name = strings.Replace(strings.TrimPrefix(path, string(filepath.Separator)), "\\", "/", -1)
+	err = writer.WriteHeader(header)
+	if err != nil {
+		return false, err
+	}
+
+	_, err = io.Copy(writer, file)
+	if err != nil {
+		return false, err
+	}
+
+	return false, nil
 }

@@ -95,7 +95,7 @@ type GetScanDataRuleResp struct {
 		Name   string `json:"name"`
 		Docs   string `json:"docs"`
 	} `json:"rule"`
-	Languages       []string                         `json:"languages"`
+	Languages       []string                         `json:"language"`
 	Count           *GetScanDataCountResp            `json:"count"`
 	Vulnerabilities []GetScanDataVulnerabilitiesResp `json:"vulnerabilities"`
 }

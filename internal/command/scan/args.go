@@ -17,7 +17,8 @@ const (
 )
 
 var (
-	ErrMissingToken = errors.New("missing token, please provide your Guardrails CLI token via -—token option or GUARDRAILS_CLI_TOKEN environment variable")
+	ErrMissingToken       = errors.New("missing token, please provide your Guardrails CLI token via -—token option or GUARDRAILS_CLI_TOKEN environment variable")
+	ErrInvalidFormatParam = errors.New("failed to parse format value")
 )
 
 // Args provides arguments for scan command handler.
@@ -49,7 +50,7 @@ func (args *Args) SetDefault() error {
 func isFormatAllowed(value interface{}) error {
 	input, ok := value.(string)
 	if !ok {
-		return errors.New("failed to parse format value")
+		return ErrInvalidFormatParam
 	}
 
 	allowedFormat := []string{FormatJSON, FormatCSV, FormatSARIF, FormatPretty}

@@ -17,6 +17,7 @@ var (
 	ErrNotAValidGitRepo = func(path string) error {
 		return fmt.Errorf("%s is not a valid git repository", path)
 	}
+	ErrGitRemoteURLNotFound = errors.New("repository doesn't have remote URLs")
 )
 
 //go:generate mockgen -destination=mock/repository.go -package=mockrepository . Repository
@@ -71,7 +72,7 @@ func (r *repository) GetMetadataFromRemoteURL() (*Metadata, error) {
 	// TODO: currently we only take first remote URL from origin. It could be expanded later since git can have multiple remote urls.
 	remoteURLs := cfg.Remotes["origin"].URLs
 	if len(remoteURLs) == 0 {
-		return nil, errors.New("repository doesn't have remote URLs")
+		return nil, ErrGitRemoteURLNotFound
 	}
 
 	remoteURL := remoteURLs[0]

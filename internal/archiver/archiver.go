@@ -76,7 +76,7 @@ func compress(projectPath string, filepaths []string, output io.Writer) (err err
 	}()
 
 	for _, path := range filepaths {
-		isDir, err := compressFile(projectPath, path, tarWriter)
+		isDir, err := compressFile(projectPath, path, tarWriter) //nolint:staticcheck
 		if err != nil {
 			return err
 		}

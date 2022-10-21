@@ -67,7 +67,7 @@ func TestScanCommandExecuteSuccess(t *testing.T) {
 		"cmd/common.go",
 		"cmd/root.go",
 		"cmd/scan.go",
-		"etc/run-test.sh",
+		"etc/scripts/run-test.sh",
 		"go.mod",
 		"go.sum",
 		"internal/archiver/archiver.go",

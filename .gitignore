@@ -24,3 +24,5 @@ go.work
 
 # Env files
 .envrc
+
+dist/

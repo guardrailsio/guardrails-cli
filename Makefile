@@ -1,5 +1,5 @@
 test:
-	./etc/run-test.sh
+	./etc/scripts/run-test.sh
 
 # create linux 64 bit binary.
 linux-bin:

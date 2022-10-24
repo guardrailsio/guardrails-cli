@@ -6,6 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"crypto/tls"
+	"os"
+	"strconv"
 
 	httpClient "github.com/guardrailsio/guardrails-cli/internal/client"
 	"github.com/guardrailsio/guardrails-cli/internal/config"
@@ -36,7 +39,21 @@ type client struct {
 
 // New instantiates new GuardRailsClient.
 func New(cfg *config.Config, token string) GuardRailsClient {
-	return &client{cfg: cfg, httpclient: new(http.Client), token: token}
+	skipTLSVerification, _ := strconv.ParseBool(os.Getenv("SKIP_TLS_VERIFICATION"))
+
+	defaultTransport := http.DefaultTransport.(*http.Transport)
+
+	customTransport := &http.Transport{
+		Proxy:                 defaultTransport.Proxy,
+		DialContext:           defaultTransport.DialContext,
+		MaxIdleConns:          defaultTransport.MaxIdleConns,
+		IdleConnTimeout:       defaultTransport.IdleConnTimeout,
+		ExpectContinueTimeout: defaultTransport.ExpectContinueTimeout,
+		TLSHandshakeTimeout:   defaultTransport.TLSHandshakeTimeout,
+		TLSClientConfig:       &tls.Config{InsecureSkipVerify: skipTLSVerification},
+	}
+
+	return &client{cfg: cfg, httpclient: &http.Client{Transport: customTransport}, token: token}
 }
 
 // CreateUploadURL implements guardrailsclient.GuardRailsClient interface.

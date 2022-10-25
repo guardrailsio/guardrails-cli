@@ -130,7 +130,7 @@ type GetScanDataVulnerabilitiesResp struct {
 		Docs         string `json:"docs"`
 		EngineName   string `json:"engineName"`
 		CvssSeverity string `json:"cvssSeverity"`
-		CvssScore    int64  `json:"cvssScore"`
+		CvssScore    float64`json:"cvssScore"`
 		CvssVector   string `json:"cvssVector"`
 	} `json:"engineRule"`
 }

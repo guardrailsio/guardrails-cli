@@ -77,7 +77,7 @@ func (r *repository) GetMetadataFromRemoteURL() (*Metadata, error) {
 
 	remoteURL := remoteURLs[0]
 
-	re := regexp.MustCompile(`(?P<Protocol>git@|http(s)?:\/\/)(.+@)*(?P<Provider>[\w\d\.-]+)(:[\d]+){0,1}\/*(?P<Name>.*)`)
+	re := regexp.MustCompile(`(?P<Protocol>git@|http(s)?:\/\/)(.+@)*(?P<Provider>[\w\d\.]+)(:[\d]+){0,1}\/*(?P<Name>.*)`)
 	matches := re.FindStringSubmatch(remoteURL)
 
 	protocolRe := regexp.MustCompile(`[^\w]`)

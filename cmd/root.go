@@ -13,7 +13,9 @@ var rootCmd = &cobra.Command{
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
+func Execute(cmdVersion string) {
+	version = cmdVersion
+
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
@@ -33,6 +35,7 @@ Usage: guardrails <command> [<args>]
 Commands:
   scan [-t,--token=<token>][-p,--path=<path>][-f,--format=json,csv,sarif,pretty]
        [-o,--output=<path>][-q,--quiet]
+  version
   help
 
 scan: scans a repository for vulnerabilities and output results
@@ -41,6 +44,8 @@ scan: scans a repository for vulnerabilities and output results
   -f, --format the output format for scan results, defaults to pretty
   -o, --output if provided, will save the output to the specified file path
   -q, --quiet  if provided, will only output scan results in --format and nothing else
+
+version: display cli version
 
 help: displays this help menu
 

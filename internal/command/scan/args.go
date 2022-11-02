@@ -17,7 +17,7 @@ const (
 )
 
 var (
-	ErrMissingToken       = errors.New("missing token, please provide your Guardrails CLI token via -—token option or GUARDRAILS_CLI_TOKEN environment variable")
+	ErrMissingToken       = errors.New("missing token, please provide your GuardRails CLI token via -—token option or GUARDRAILS_CLI_TOKEN environment variable")
 	ErrInvalidFormatParam = errors.New("failed to parse format value")
 )
 
@@ -63,7 +63,7 @@ func isFormatAllowed(value interface{}) error {
 	}
 
 	if !isAllowed {
-		return fmt.Errorf("unknown format. Allowed format are %s", strings.Join(allowedFormat, ", "))
+		return fmt.Errorf("unknown format. Allowed formats are %s", strings.Join(allowedFormat, ", "))
 	}
 	return nil
 }

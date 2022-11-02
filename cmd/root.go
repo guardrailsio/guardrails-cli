@@ -38,8 +38,8 @@ Commands:
   version
   help
 
-scan: scans a repository for vulnerabilities and output results
-  -t, --token  a valid Guardrails CLI token you can obtain from dashboard > settings
+scan: scans a repository for vulnerabilities and outputs results
+  -t, --token  a valid GuardRails CLI token you can obtain from dashboard -> settings
   -p, --path   the path to the repository to scan, defaults to $PWD
   -f, --format the output format for scan results, defaults to pretty
   -o, --output if provided, will save the output to the specified file path

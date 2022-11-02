@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	ErrInvalidToken       = errors.New("invalid token, please provide a valid Guardrails CLI token, available from dashboard > settings")
-	ErrRepositoryNotFound = errors.New("invalid repository, please provide an existing repository from the git provider account linked with Guardrails, available from dashboard > repositories")
+	ErrInvalidToken       = errors.New("invalid token, please provide a valid GuardRails CLI token, available from dashboard -> settings")
+	ErrRepositoryNotFound = errors.New("invalid repository, please provide an existing repository from the git provider account linked with GuardRails, available from dashboard -> repositories")
 )
 
 func parseHTTPRespStatusCode(funcName string, resp *http.Response) error {

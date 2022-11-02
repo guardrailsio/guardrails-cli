@@ -43,8 +43,8 @@ func (h *Handler) displayUploadingMessage(projectZipName string) {
 func (h *Handler) displayRetrievingScanResultMessage(projectName string) {
 	if !h.Args.Quiet {
 		fmt.Fprintln(h.OutputWriter.Writer)
-		h.Spinner.Prefix = text.FgCyan.Sprintf("%s retrieving scan result of %s ", emoji.MagnifyingGlassTiltedRight, projectName)
-		h.Spinner.FinalMSG = text.FgCyan.Sprintf("%s retrieving scan result of %s %s\n\n", emoji.MagnifyingGlassTiltedRight, projectName, emoji.CheckMark)
+		h.Spinner.Prefix = text.FgCyan.Sprintf("%s scan started, waiting for results of %s ", emoji.MagnifyingGlassTiltedRight, projectName)
+		h.Spinner.FinalMSG = text.FgCyan.Sprintf("%s scan started, waiting for results of %s %s\n\n", emoji.MagnifyingGlassTiltedRight, projectName, emoji.CheckMark)
 		h.Spinner.Start()
 	}
 }

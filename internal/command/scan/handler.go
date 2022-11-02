@@ -73,7 +73,7 @@ func (h *Handler) Execute(ctx context.Context) error {
 		}
 
 		if h.Args.Output == "" {
-			fmt.Fprintf(w, "Output: none\n")
+			fmt.Fprintf(w, "Output: stdout\n")
 		} else {
 			fmt.Fprintf(w, "Output: %s\n", h.Args.Output)
 		}

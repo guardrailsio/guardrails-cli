@@ -45,12 +45,13 @@ scan: scans a repository for vulnerabilities and output results
   -o, --output if provided, will save the output to the specified file path
   -q, --quiet  if provided, will only output scan results in --format and nothing else
 
-version: display cli version
+version: displays build version
 
 help: displays this help menu
 
 Environment variables:
 GUARDRAILS_CLI_TOKEN  if set, will be used as token when --token is not provided
+GUARDRAILS_API_HOST   if set, will replace the API host (defaults to https://api.guardrails.io)
 `
 
 	rootCmd.SetHelpTemplate(tmpl)

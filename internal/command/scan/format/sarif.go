@@ -74,7 +74,7 @@ type Location struct {
 	} `json:"region"`
 }
 
-// GetScanDataJSONFormat parses guardrailsclient.GetScanDataResp to sarif format.
+// GetScanDataJSONFormat parses guardrailsclient.GetScanDataResp to SARIF format.
 func GetScanDataSARIFFormat(w io.Writer, resp *guardrailsclient.GetScanDataResp, isQuiet bool) error {
 	schema := &Schema{
 		Schema:  "https://json.schemastore.org/sarif-2.1.0.json",

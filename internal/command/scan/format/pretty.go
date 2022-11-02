@@ -28,7 +28,7 @@ func GetScanDataPrettyFormat(w io.Writer, resp *guardrailsclient.GetScanDataResp
 				fmt.Fprintln(w, text.FgCyan.Sprintf("%s (line %d)", v.Path, v.LineNumber))
 			}
 
-			fmt.Fprintln(w, "Not sure how to fix this ?")
+			fmt.Fprintln(w, "Not sure how to fix this?")
 			for _, l := range r.Languages {
 				fmt.Fprintln(w, text.FgBlue.Sprintf("https://docs.guardrails.io/docs/vulnerabilities/%s/%s\n", l, r.Rule.Docs))
 			}

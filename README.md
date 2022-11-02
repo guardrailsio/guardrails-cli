@@ -13,7 +13,8 @@
 ![Codecov](https://img.shields.io/codecov/c/github/guardrailsio/guardrails-cli?token=3c5e84bf-caa3-4a07-ace2-64f67b86a244)
 [![GuardRails badge](https://api.guardrails.io/v2/badges/145474?token=5cdcd3c9f602bdf5dd4ec8a7d19e2e6599e571a73e8c9751f5b6d04deaf68aa6)](https://dashboard.guardrails.io/gh/guardrailsio/repos/145474)
 
-The GuardRails CLI allows you to interact with [GuardRails](https://www.guardrails.io) via command line.
+The GuardRails CLI allows you to interact with [GuardRails](https://www.guardrails.io) via the command line.
+
 ## Table of Contents
 
 - [Pre-Requisites](#pre-requisites)
@@ -24,17 +25,17 @@ The GuardRails CLI allows you to interact with [GuardRails](https://www.guardrai
 
 ## Pre-Requisites
 
-To use the GuardRails CLI, you need to have an active account and a CLI token.
+To use the GuardRails CLI, you require an active GuardRails account and a CLI token.
 
 More information on how to get started can be found [here](https://www.guardrails.io/docs/en/getting-started).
 
-Your GuardRails account CLI token can be found in the account's setting page on the dashboard.
+Your GuardRails account CLI token can be obtained under `Settings`->`CLI Authentication` on the GuardRails dashboard.
 
 ## Installation
 
 ### Installation scripts (Linux / OSX)
 
-Just paste this command and you're good to go. We're assuming that you're using `bash` but you can change it accordingly based on the shell that you're using. You might be asked for a password for `sudo` in the process of installation.
+Just paste this command, and you're good to go. We're assuming you're using `bash`, but you can change it accordingly based on the shell you're using. You might be asked for a password for `sudo` in the installation process.
 
 ```
 curl -fsSL https://raw.githubusercontent.com/guardrailsio/guardrails-cli/master/etc/scripts/install.sh | bash
@@ -51,7 +52,7 @@ brew install guardrails
 
 ### Windows
 
-You need to have [scoop](https://scoop.sh) installed in order to install `guardrails`. The rest will be similar to the installation scripts for Linux / OSX. You just need to paste this command into your powershell:
+You require [scoop](https://scoop.sh) before installing `guardrails`. The rest will be similar to the installation scripts for Linux / OSX. Execute the below command in your powershell:
 
 ```
 iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/guardrailsio/guardrails-cli/master/etc/scripts/install.ps1'))
@@ -60,19 +61,20 @@ iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.co
 ## Usage
 
 Here are the main GuardRails CLI commands:
-
-- `scan` : scans a repository for vulnerabilities and output results
-- `version` : displays build version
+- `scan`    : Scans a repository for vulnerabilities and outputs results
+- `version` : Displays the build version
  
-For more information on all the options and arguments available please check the help menu with: `guardrails --help` 
+For more information on all the options and available arguments, please check the help menu with: `guardrails --help`
 
 ### How to read the results
 
-The CLI will output the total number of vulnerabilities detected, if any.
+The CLI will output the total number of detected vulnerabilities.
+Vulnerabilities are grouped by category, i.e., `Hard-Coded Secrets`.
 
-Vulnerabilities detected are grouped by category, i.e. Hard-Coded Secrets.
-
-For each item within a category, there will be a severity index (see table below), the type of vulnerability and a link to a fixing advice in our documentation; and finally the file path and line number.
+For each item within a category, the following information is shown:
+- A severity index (see table below).
+- The type of vulnerability containing a hyperlink to fixing advice in our documentation.
+- The file path and line number.
 
 Example: `(M) Hard-coded Secret - awesome-product/config.js:2`
 
@@ -82,12 +84,13 @@ For Vulnerable Libraries specifically, the type of vulnerability will be replace
 
 Example: `(C) pkg:gem/mypackage@2.5.2 - awesome-product/Gemfile.lock:14`
 
-Here we're looking at the vulnerable `mypackage` dependancy in version `2.5.2` with a `Critical` severity declared in the file `awesome-product/Gemfile.lock` at line `14`.
+Here we're looking at the vulnerable `mypackage` dependency in version `2.5.2` with a `Critical` severity declared in the file `awesome-product/Gemfile.lock` at line `14`.
 
 #### Severity index table
 
 | Index | Severity      |
 |-------|---------------|
+| (N/A) | Not available |
 | (I)   | Informational |
 | (L)   | Low           |
 | (M)   | Medium        |
@@ -100,4 +103,4 @@ https://www.guardrails.io/docs/en/cli/introduction
 
 ## License
 
-GuardRails CLI is released under the Apache 2.0 license. See [LICENSE.txt](https://github.com/guardrailsio/guardrails-cli/blob/master/LICENSE.txt)
+The GuardRails CLI is released under the Apache 2.0 license. See [LICENSE.txt](https://github.com/guardrailsio/guardrails-cli/blob/master/LICENSE.txt)

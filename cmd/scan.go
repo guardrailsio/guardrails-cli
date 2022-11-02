@@ -74,7 +74,7 @@ var scanCmd = &cobra.Command{
 }
 
 func init() {
-	scanCmd.Flags().StringVarP(&token, "token", "t", "", "a valid Guardrails CLI token you can obtain from dashboard > settings")
+	scanCmd.Flags().StringVarP(&token, "token", "t", "", "a valid GuardRails CLI token you can obtain from dashboard -> settings")
 	scanCmd.Flags().StringVarP(&path, "path", "p", "", "the path to the repository to scan, defaults to $PWD")
 	scanCmd.Flags().StringVarP(&format, "format", "f", "pretty", "the output format for scan results, defaults to pretty")
 	scanCmd.Flags().StringVarP(&output, "output", "o", "", "if provided, will save the output to the specified file path")

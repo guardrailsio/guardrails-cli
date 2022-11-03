@@ -83,7 +83,7 @@ func (r *repository) GetMetadataFromRemoteURL() (*Metadata, error) {
 	protocolRe := regexp.MustCompile(`[^\w]`)
 	protocol := protocolRe.ReplaceAllString(matches[re.SubexpIndex("Protocol")], "")
 
-	providerRe := regexp.MustCompile(`^(.*?)\.`)
+	providerRe := regexp.MustCompile(`^([\w\d-]+)([\.\w\d]*)`)
 	provider := providerRe.FindStringSubmatch(matches[re.SubexpIndex("Provider")])
 
 	nameRe := regexp.MustCompile(`\/(.*)\.git$`)

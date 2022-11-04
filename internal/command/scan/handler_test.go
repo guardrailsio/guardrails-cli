@@ -137,6 +137,6 @@ func TestScanCommandExecuteSuccess(t *testing.T) {
 	)
 
 	cmd := New(args, spinner, cfg, mockRepo, mockArc, outputWriter, mockGrClient)
-	err = cmd.Execute(ctx)
+	_, err = cmd.Execute(ctx)
 	assert.Nil(t, err)
 }

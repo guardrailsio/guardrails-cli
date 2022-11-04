@@ -9,10 +9,11 @@ import (
 	"github.com/guardrailsio/guardrails-cli/internal/archiver"
 	grclient "github.com/guardrailsio/guardrails-cli/internal/client/guardrails"
 	"github.com/guardrailsio/guardrails-cli/internal/config"
+	"github.com/guardrailsio/guardrails-cli/internal/constant"
 	prettyFmt "github.com/guardrailsio/guardrails-cli/internal/format/pretty"
 	outputwriter "github.com/guardrailsio/guardrails-cli/internal/output"
 	"github.com/guardrailsio/guardrails-cli/internal/repository"
-	"github.com/jedib0t/go-pretty/text"
+	"github.com/jedib0t/go-pretty/v6/text"
 )
 
 var (
@@ -54,13 +55,13 @@ func New(
 }
 
 // Execute runs scan command.
-func (h *Handler) Execute(ctx context.Context) error {
+func (h *Handler) Execute(ctx context.Context) (constant.ExitCode, error) {
 	w := h.OutputWriter.Writer
 
 	h.displayScanningMessage()
 	repoMetadata, err := h.Repository.GetMetadataFromRemoteURL()
 	if err != nil {
-		return err
+		return constant.ErrorExitCode, err
 	}
 	h.stopLoadingMessage()
 
@@ -82,14 +83,14 @@ func (h *Handler) Execute(ctx context.Context) error {
 	// get list of tracked files in git repository.
 	filepaths, err := h.Repository.ListFiles()
 	if err != nil {
-		return err
+		return constant.ErrorExitCode, err
 	}
 
 	// pass the list of the tracked files and compress it into zip file.
 	h.displayCompressingMessage(repoMetadata.Name)
 	projectZipBuf, err := h.Archiver.OutputZipToIOReader(repoMetadata.Path, filepaths)
 	if err != nil {
-		return err
+		return constant.ErrorExitCode, err
 	}
 	h.stopLoadingMessage()
 
@@ -100,7 +101,7 @@ func (h *Handler) Execute(ctx context.Context) error {
 	}
 	createUploadURLResp, err := h.GRClient.CreateUploadURL(ctx, createUploadURLReq)
 	if err != nil {
-		return err
+		return constant.ErrorExitCode, err
 	}
 
 	// upload the compressed project files
@@ -111,7 +112,7 @@ func (h *Handler) Execute(ctx context.Context) error {
 	}
 	err = h.GRClient.UploadProject(ctx, uploadProjectReq)
 	if err != nil {
-		return err
+		return constant.ErrorExitCode, err
 	}
 	h.stopLoadingMessage()
 
@@ -124,7 +125,7 @@ func (h *Handler) Execute(ctx context.Context) error {
 	}
 	triggerScanResp, err := h.GRClient.TriggerScan(ctx, triggerScanReq)
 	if err != nil {
-		return err
+		return constant.ErrorExitCode, err
 	}
 
 	h.displayRetrievingScanResultMessage(repoMetadata.Name)
@@ -147,12 +148,12 @@ func (h *Handler) Execute(ctx context.Context) error {
 		return nil
 	}, bc)
 	if err != nil {
-		return err
+		return constant.ErrorExitCode, err
 	}
 	h.stopLoadingMessage()
 
 	if err := h.GetScanDataFormatter(getScanDataResp); err != nil {
-		return err
+		return constant.ErrorExitCode, err
 	}
 
 	if !h.Args.Quiet || h.Args.Format == FormatPretty {
@@ -161,7 +162,7 @@ func (h *Handler) Execute(ctx context.Context) error {
 
 	if h.Args.Output != "" {
 		if err := h.OutputWriter.SaveBufferToFile(); err != nil {
-			return ErrFailedToSaveOutput(err)
+			return constant.ErrorExitCode, ErrFailedToSaveOutput(err)
 		} else if !h.Args.Quiet {
 			fmt.Printf("\n%s\n", prettyFmt.Success("Output saved"))
 		}
@@ -170,5 +171,9 @@ func (h *Handler) Execute(ctx context.Context) error {
 		h.OutputWriter.Buffer.Reset()
 	}
 
-	return nil
+	if !getScanDataResp.OK {
+		return constant.VulnerabilityFoundExitCode, nil
+	}
+
+	return constant.SuccessExitCode, nil
 }

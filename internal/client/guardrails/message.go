@@ -2,6 +2,7 @@ package guardrailsclient
 
 import (
 	"io"
+	"regexp"
 	"time"
 )
 
@@ -95,42 +96,49 @@ type GetScanDataRuleResp struct {
 		Name   string `json:"name"`
 		Docs   string `json:"docs"`
 	} `json:"rule"`
-	Languages       []string                         `json:"language"`
-	Count           *GetScanDataCountResp            `json:"count"`
-	Vulnerabilities []GetScanDataVulnerabilitiesResp `json:"vulnerabilities"`
+	Languages       []string                       `json:"language"`
+	Count           *GetScanDataCountResp          `json:"count"`
+	Vulnerabilities []GetScanDataVulnerabilityResp `json:"vulnerabilities"`
 }
 
-type GetScanDataVulnerabilitiesResp struct {
-	FindingID               string `json:"idFinding"`
-	Status                  string `json:"status"`
-	Language                string `json:"language"`
-	Branch                  string `json:"branch"`
-	Path                    string `json:"path"`
-	PrimaryLocationLineHash string `json:"primaryLocationLineHash"`
-	LineNumber              int64  `json:"lineNumber"`
-	IntroducedBy            string `json:"introducedBy"`
-	Type                    string `json:"type"`
-	Metadata                struct {
-		DependencyName  string   `json:"dependencyName"`
-		CurrentVersion  string   `json:"currentVersion"`
-		PatchedVersions string   `json:"patchedVersions"`
-		References      []string `json:"references"`
-		CvssSeverity    string   `json:"cvssSeverity"`
-		CvssScore       string   `json:"cvssScore"`
-		CvssVector      string   `json:"cvssVector"`
-	} `json:"metadata"`
-	Severity struct {
+type GetScanDataVulnerabilityResp struct {
+	FindingID               string                                `json:"idFinding"`
+	Status                  string                                `json:"status"`
+	Language                string                                `json:"language"`
+	Branch                  string                                `json:"branch"`
+	Path                    string                                `json:"path"`
+	PrimaryLocationLineHash string                                `json:"primaryLocationLineHash"`
+	LineNumber              int64                                 `json:"lineNumber"`
+	IntroducedBy            string                                `json:"introducedBy"`
+	Type                    string                                `json:"type"`
+	Metadata                *GetScanDataVulnerabilityMetadataResp `json:"metadata,omitempty"`
+	Severity                struct {
 		SeverityID int64  `json:"idSeverity"`
 		Name       string `json:"name"`
 	} `json:"severity"`
 	EngineRule struct {
-		EngineRuleID int64  `json:"idEngineRule"`
-		Title        string `json:"title"`
-		Name         string `json:"name"`
-		Docs         string `json:"docs"`
-		EngineName   string `json:"engineName"`
-		CvssSeverity string `json:"cvssSeverity"`
-		CvssScore    float64`json:"cvssScore"`
-		CvssVector   string `json:"cvssVector"`
+		EngineRuleID int64   `json:"idEngineRule"`
+		Title        string  `json:"title"`
+		Name         string  `json:"name"`
+		Docs         string  `json:"docs"`
+		EngineName   string  `json:"engineName"`
+		CvssSeverity string  `json:"cvssSeverity"`
+		CvssScore    float64 `json:"cvssScore"`
+		CvssVector   string  `json:"cvssVector"`
 	} `json:"engineRule"`
+}
+
+type GetScanDataVulnerabilityMetadataResp struct {
+	DependencyName  string   `json:"dependencyName"`
+	CurrentVersion  string   `json:"currentVersion"`
+	PatchedVersions string   `json:"patchedVersions"`
+	References      []string `json:"references"`
+	CvssSeverity    string   `json:"cvssSeverity"`
+	CvssScore       string   `json:"cvssScore"`
+	CvssVector      string   `json:"cvssVector"`
+}
+
+// IsDependencyNameContainsVersion checks if DependencyName already contains a version
+func (r *GetScanDataVulnerabilityMetadataResp) IsDependencyNameContainsVersion() (bool, error) {
+	return regexp.MatchString(`@\d\.\d\.\d`, r.DependencyName)
 }

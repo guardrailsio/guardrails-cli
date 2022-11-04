@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/enescakir/emoji"
-	"github.com/jedib0t/go-pretty/text"
+	"github.com/jedib0t/go-pretty/v6/text"
 )
 
 func (h *Handler) stopLoadingMessage() {

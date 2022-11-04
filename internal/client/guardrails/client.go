@@ -3,10 +3,10 @@ package guardrailsclient
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"crypto/tls"
 	"os"
 	"strconv"
 
@@ -171,8 +171,8 @@ func (c *client) GetScanData(ctx context.Context, req *GetScanDataReq) (*GetScan
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusNotFound {
-		return nil, httpClient.ErrNotFound
+	if resp.StatusCode != http.StatusOK {
+		return nil, ErrScanProcessNotCompleted
 	}
 
 	if err := parseHTTPRespStatusCode("GetScanData", resp); err != nil {

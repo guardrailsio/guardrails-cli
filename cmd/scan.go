@@ -7,6 +7,7 @@ import (
 	guardrailsclient "github.com/guardrailsio/guardrails-cli/internal/client/guardrails"
 	scan "github.com/guardrailsio/guardrails-cli/internal/command/scan"
 	"github.com/guardrailsio/guardrails-cli/internal/config"
+	"github.com/guardrailsio/guardrails-cli/internal/constant"
 	outputwriter "github.com/guardrailsio/guardrails-cli/internal/output"
 	"github.com/guardrailsio/guardrails-cli/internal/repository"
 	spinner "github.com/guardrailsio/guardrails-cli/internal/tools/spinner"
@@ -38,10 +39,10 @@ var scanCmd = &cobra.Command{
 
 		// set default value to fill up optional args that has empty value
 		if err := args.SetDefault(); err != nil {
-			fail(err)
+			exit(constant.ErrorExitCode, err)
 		}
 		if err := args.Validate(); err != nil {
-			fail(err)
+			exit(constant.ErrorExitCode, err)
 		}
 
 		// instantiate configuration
@@ -50,7 +51,7 @@ var scanCmd = &cobra.Command{
 		// setup git repository client
 		repo, err := repository.New(args.Path)
 		if err != nil {
-			fail(err)
+			exit(constant.ErrorExitCode, err)
 		}
 
 		// setup archiver
@@ -67,9 +68,7 @@ var scanCmd = &cobra.Command{
 
 		// inject all scan command dependencies and execute the command
 		cmd := scan.New(args, spinner, cfg, repo, arc, outputWriter, grclient)
-		if err := cmd.Execute(ctx); err != nil {
-			fail(err)
-		}
+		exit(cmd.Execute(ctx))
 	},
 }
 
@@ -84,7 +83,7 @@ func init() {
 	// where secrets are usually stored in CICD's secret vault so it won't displayed in CICD pipeline logs.
 	// If both are exists at the same time, the one from CLI params (--token) will override the one set in env var.
 	if err := viper.BindEnv("token", "GUARDRAILS_CLI_TOKEN"); err != nil {
-		fail(err)
+		exit(constant.ErrorExitCode, err)
 	}
 
 	if tokenEnv := viper.GetString("token"); token == "" && tokenEnv != "" {

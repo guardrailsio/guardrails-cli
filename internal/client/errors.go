@@ -1,14 +1,8 @@
 package client
 
 import (
-	"errors"
 	"fmt"
 	"io"
-	"net/http"
-)
-
-var (
-	ErrNotFound = errors.New(http.StatusText(http.StatusNotFound))
 )
 
 // UnexpectedHTTPResponseFormatter catches error response returned by HTTP client.

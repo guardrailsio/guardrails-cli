@@ -12,8 +12,8 @@ type Config struct {
 func New() *Config {
 	return &Config{
 		HttpClient: &HttpClientConfig{
-			PollingInterval: 5 * time.Second,
-			Timeout:         2 * time.Second,
+			PollingInterval: 15 * time.Second,
+			Timeout:         10 * time.Second,
 			RetryTimeout:    30 * time.Minute,
 		},
 		GuardRailsClient: NewGuardRailsClientConfig(),

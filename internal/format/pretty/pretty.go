@@ -36,6 +36,6 @@ func Success(message string) string {
 
 // Hyperlinks accepts links and texts and construct clickable hyperlinks in terminal.
 // See: https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
-func Hyperlinks(href, text string) string {
-	return fmt.Sprintf(`\e]8;;%s\e\\%s\e]8;;\e\\\n`, href, text)
+func Hyperlinks(link, displayedText string) string {
+	return fmt.Sprintf("\x1b]8;;%s\x07%s\x1b]8;;\x07", link, displayedText)
 }

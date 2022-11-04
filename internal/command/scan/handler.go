@@ -2,6 +2,7 @@ package scan
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/briandowns/spinner"
@@ -141,8 +142,14 @@ func (h *Handler) Execute(ctx context.Context) (constant.ExitCode, error) {
 
 	var getScanDataResp *grclient.GetScanDataResp
 	err = backoff.Retry(func() error {
-		if getScanDataResp, err = h.GRClient.GetScanData(ctx, getScanDataReq); err != nil {
+		getScanDataResp, err = h.GRClient.GetScanData(ctx, getScanDataReq)
+		// only retries when the error returned is because the scan process is not completed yet.
+		if errors.Is(err, grclient.ErrScanProcessNotCompleted) {
 			return err
+		}
+		// otherwise make it a permanent error so it won't be retried
+		if err != nil {
+			return backoff.Permanent(err)
 		}
 
 		return nil

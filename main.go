@@ -3,7 +3,7 @@ package main
 import "github.com/guardrailsio/guardrails-cli/cmd"
 
 var (
-	version = "latest"
+	version = "unknown"
 )
 
 func main() {

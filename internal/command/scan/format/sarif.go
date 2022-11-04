@@ -184,10 +184,17 @@ func GetScanDataSARIFFormat(w io.Writer, resp *guardrailsclient.GetScanDataResp,
 
 	schema.Runs = runs
 
-	if !isQuiet {
-		if len(results) == 0 && len(rules) == 0 && resp.Results.Count.Total > 0 {
+	if (len(results) == 0 && resp.Results.Count.Total > 0) || resp.Results.Count.Total == 0 {
+		if !isQuiet {
 			fmt.Fprintf(w, "%s\n", prettyFmt.Success("No issues detected, well done!"))
 			fmt.Fprintf(w, "(%d vulnerabilities were detected, but SARIF format only reports on static analysis)\n", resp.Results.Count.Total)
+		} else {
+			manifestJson, err := json.MarshalIndent(schema, "", "  ")
+			if err != nil {
+				return err
+			}
+
+			fmt.Fprintf(w, "%s\n", string(manifestJson))
 		}
 	} else {
 		manifestJson, err := json.MarshalIndent(schema, "", "  ")

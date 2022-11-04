@@ -3,6 +3,7 @@ package cmd
 import (
 	"os"
 
+	"github.com/guardrailsio/guardrails-cli/internal/constant"
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +19,7 @@ func Execute(cmdVersion string) {
 
 	err := rootCmd.Execute()
 	if err != nil {
-		os.Exit(1)
+		os.Exit(int(constant.ErrorExitCode))
 	}
 }
 

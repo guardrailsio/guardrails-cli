@@ -23,12 +23,11 @@ func GetScanDataPrettyFormat(w io.Writer, resp *guardrailsclient.GetScanDataResp
 		fmt.Fprintf(w, "%s\n", prettyFmt.Warning(fmt.Sprintf("We detected %d security %s", resp.Results.Count.Total, issueStr)))
 
 		l := list.NewWriter()
-		l.SetStyle(list.StyleBulletCircle)
 
 		for _, r := range resp.Results.Rules {
-			fmt.Fprintf(w, text.Bold.Sprintf("%s (%d)\n", r.Rule.Title, r.Count.Total))
+			l.SetStyle(list.StyleBulletCircle)
 
-			l.Indent()
+			fmt.Fprintln(w, text.Bold.Sprintf("%s (%d)", r.Rule.Title, r.Count.Total))
 
 			// get cvssSecurity abbreviation default value : N/A
 			cvssSecurityAbbr := guardrailsclient.GetCVSSSeverityAbbreviation("")
@@ -56,22 +55,28 @@ func GetScanDataPrettyFormat(w io.Writer, resp *guardrailsclient.GetScanDataResp
 					}
 				}
 
-				vulnrDocs := fmt.Sprintf("https://docs.guardrails.io/docs/vulnerabilities/general/%s\n", r.Rule.Docs)
+				docs := r.Rule.Docs
 				if v.EngineRule.Docs != "" {
-					vulnrDocs = fmt.Sprintf("https://docs.guardrails.io/docs/vulnerabilities/%s/%s\n", v.Language, v.EngineRule.Docs)
+					docs = v.EngineRule.Docs
 				}
+
+				vulnrDocs := fmt.Sprintf("https://docs.guardrails.io/docs/vulnerabilities/%s/%s", v.Language, docs)
 				vulnrLink := prettyFmt.Hyperlinks(vulnrDocs, vulnrTitle)
 
 				blobCaller := fmt.Sprintf("%s:%d", v.Path, v.LineNumber)
 				// example permalink: https://github.com/guardrailsio/guardrails-cli/blob/67dbb9394658f163491989d931f196442747c295/README.md?plain=1#L3
-				// TODO: how to construct the permalink using provided API response ?
-				blobPermalink := "https://example.com"
-				blobLink := prettyFmt.Hyperlinks(blobPermalink, blobCaller)
+				// TODO: construct the permalink using provided API response when the API is ready
+				// blobPermalink := ""
+				// blobLink := prettyFmt.Hyperlinks(blobPermalink, blobCaller)
+				blobLink := blobCaller
 
-				l.AppendItem(text.FgCyan.Sprintf("(%s) %s - %s", cvssSecurityAbbr, vulnrLink, blobLink))
+				l.AppendItem(fmt.Sprintf("(%s) %s - %s", cvssSecurityAbbr, vulnrLink, blobLink))
 			}
 
 			fmt.Fprintln(w, l.Render())
+			fmt.Fprintln(w)
+
+			l.Reset()
 		}
 	}
 

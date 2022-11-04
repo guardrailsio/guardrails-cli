@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/guardrailsio/guardrails-cli/internal/constant"
 	"github.com/spf13/cobra"
 )
 
@@ -13,8 +14,12 @@ var version string
 var versionCmd = &cobra.Command{
 	Use: "version",
 	Run: func(_ *cobra.Command, _ []string) {
-		fmt.Printf("v%s\n", version)
-		os.Exit(0)
+		if version == "unknown" {
+			fmt.Println("version unknown")
+		} else {
+			fmt.Printf("v%s\n", version)
+		}
+		os.Exit(int(constant.SuccessExitCode))
 	},
 }
 

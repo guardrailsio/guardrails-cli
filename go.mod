@@ -3,7 +3,6 @@ module github.com/guardrailsio/guardrails-cli
 go 1.18
 
 require (
-	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d
 	github.com/briandowns/spinner v1.19.0
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/enescakir/emoji v1.0.0

@@ -140,5 +140,5 @@ type GetScanDataVulnerabilityMetadataResp struct {
 
 // IsDependencyNameContainsVersion checks if DependencyName already contains a version
 func (r *GetScanDataVulnerabilityMetadataResp) IsDependencyNameContainsVersion() (bool, error) {
-	return regexp.MatchString(`@\d\.\d\.\d`, r.DependencyName)
+	return regexp.MatchString(`@\d+\.\d+\.\d+`, r.DependencyName)
 }

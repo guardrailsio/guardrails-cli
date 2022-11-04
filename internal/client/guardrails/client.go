@@ -171,7 +171,7 @@ func (c *client) GetScanData(ctx context.Context, req *GetScanDataReq) (*GetScan
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode == http.StatusAccepted {
 		return nil, ErrScanProcessNotCompleted
 	}
 

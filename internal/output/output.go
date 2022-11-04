@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/acarl005/stripansi"
+	"github.com/jedib0t/go-pretty/v6/text"
 )
 
 // OutputWriter determines which output that the applications written to with the default output being stdout.
@@ -37,6 +37,6 @@ func New(outputPath string) *OutputWriter {
 // SaveBufferToFile saves data written on the buffer to designated file path.
 func (o *OutputWriter) SaveBufferToFile() error {
 	// strip colorizer from text
-	plainText := stripansi.Strip(o.Buffer.String())
+	plainText := text.StripEscape(o.Buffer.String())
 	return os.WriteFile(o.Path, []byte(plainText), 0644)
 }

@@ -10,6 +10,7 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.1.2
 	github.com/jedib0t/go-pretty/v6 v6.4.0
+	github.com/samber/lo v1.34.0
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.13.0
 )
@@ -36,6 +37,7 @@ require (
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/xanzy/ssh-agent v0.3.0 // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
+	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 )

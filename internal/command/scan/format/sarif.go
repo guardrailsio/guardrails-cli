@@ -6,6 +6,8 @@ import (
 	"io"
 	"strconv"
 
+	"github.com/samber/lo"
+
 	guardrailsclient "github.com/guardrailsio/guardrails-cli/internal/client/guardrails"
 	prettyFmt "github.com/guardrailsio/guardrails-cli/internal/format/pretty"
 )
@@ -90,11 +92,12 @@ func GetScanDataSARIFFormat(w io.Writer, resp *guardrailsclient.GetScanDataResp,
 				continue
 			}
 
+			id := strconv.FormatInt(v.EngineRule.EngineRuleID, 10)
 			docs := fmt.Sprintf("https://docs.guardrails.io/docs/vulnerabilities/%s/%s", v.Language, r.Rule.Docs)
 			helpText := "For more information, please see " + docs
 
 			reportingDescriptor := ReportingDescriptor{
-				ID:   strconv.FormatInt(v.EngineRule.EngineRuleID, 10),
+				ID:   id,
 				Name: v.EngineRule.EngineName,
 				ShortDescription: struct {
 					Text string `json:"text"`
@@ -132,7 +135,7 @@ func GetScanDataSARIFFormat(w io.Writer, resp *guardrailsclient.GetScanDataResp,
 			rules = append(rules, reportingDescriptor)
 
 			result := Result{
-				RuleID: strconv.FormatInt(v.EngineRule.EngineRuleID, 10),
+				RuleID: id,
 				Message: struct {
 					Text string `json:"text"`
 				}{
@@ -175,8 +178,11 @@ func GetScanDataSARIFFormat(w io.Writer, resp *guardrailsclient.GetScanDataResp,
 			Driver ToolComponent `json:"driver"`
 		}{
 			Driver: ToolComponent{
-				Name:  "GuardRails",
-				Rules: rules,
+				Name: "GuardRails",
+				// rules must be unique. Identified by EngineRule.EngineRuleID
+				Rules: lo.UniqBy(rules, func(r ReportingDescriptor) string {
+					return r.ID
+				}),
 			},
 		},
 		Results: results,

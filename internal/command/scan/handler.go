@@ -67,7 +67,7 @@ func (h *Handler) Execute(ctx context.Context) (constant.ExitCode, error) {
 	h.stopLoadingMessage()
 
 	if !h.Args.Quiet {
-		fmt.Fprintf(w, "Project name: %s\nGit provider: %s\n", repoMetadata.Name, repoMetadata.Provider)
+		fmt.Fprintf(w, "Project name: %s\nGit provider: %s\n", repoMetadata.RepoName, repoMetadata.Provider)
 		if h.Args.Format == "" || h.Args.Format == FormatPretty {
 			fmt.Fprintf(w, "Format: %s (default)\n", FormatPretty)
 		} else {
@@ -88,15 +88,15 @@ func (h *Handler) Execute(ctx context.Context) (constant.ExitCode, error) {
 	}
 
 	// pass the list of the tracked files and compress it into zip file.
-	h.displayCompressingMessage(repoMetadata.Name)
-	projectZipBuf, err := h.Archiver.OutputZipToIOReader(repoMetadata.Path, filepaths)
+	h.displayCompressingMessage(repoMetadata.RepoName)
+	projectZipBuf, err := h.Archiver.OutputZipToIOReader(repoMetadata.DirPath, filepaths)
 	if err != nil {
 		return constant.ErrorExitCode, err
 	}
 	h.stopLoadingMessage()
 
 	// create presigned url for uploading the compressed file
-	projectZipName := fmt.Sprintf("%s_%s.tar.gz", repoMetadata.Name, repoMetadata.CommitHash)
+	projectZipName := fmt.Sprintf("%s_%s.tar.gz", repoMetadata.RepoName, repoMetadata.CommitHash)
 	createUploadURLReq := &grclient.CreateUploadURLReq{
 		File: projectZipName,
 	}
@@ -119,7 +119,7 @@ func (h *Handler) Execute(ctx context.Context) (constant.ExitCode, error) {
 
 	// call GuardRails trigger scan API
 	triggerScanReq := &grclient.TriggerScanReq{
-		Repository: repoMetadata.Name,
+		Repository: repoMetadata.RepoName,
 		SHA:        repoMetadata.CommitHash,
 		Branch:     repoMetadata.Branch,
 		FileName:   projectZipName,
@@ -129,7 +129,7 @@ func (h *Handler) Execute(ctx context.Context) (constant.ExitCode, error) {
 		return constant.ErrorExitCode, err
 	}
 
-	h.displayRetrievingScanResultMessage(repoMetadata.Name)
+	h.displayRetrievingScanResultMessage(repoMetadata.RepoName)
 	bo := backoff.NewConstantBackOff(h.Config.HttpClient.PollingInterval)
 	backoffCtx, backoffCtxCancel := context.WithTimeout(ctx, h.Config.HttpClient.RetryTimeout)
 	defer backoffCtxCancel()

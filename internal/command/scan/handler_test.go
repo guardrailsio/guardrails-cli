@@ -51,10 +51,10 @@ func TestScanCommandExecuteSuccess(t *testing.T) {
 	commitHash := fmt.Sprintf("%x", encrypted)
 
 	repoMetadata := &repository.Metadata{
-		Path:       args.Path,
+		DirPath:    args.Path,
 		Protocol:   "https",
 		Provider:   "github",
-		Name:       gofakeit.AppName(),
+		RepoName:   gofakeit.AppName(),
 		Branch:     gofakeit.Word(),
 		CommitHash: commitHash,
 	}
@@ -92,7 +92,7 @@ func TestScanCommandExecuteSuccess(t *testing.T) {
 		"internal/tools/spinner/spinner.go",
 		"main.go",
 	}
-	fileZipName := fmt.Sprintf("%s_%s.tar.gz", repoMetadata.Name, repoMetadata.CommitHash)
+	fileZipName := fmt.Sprintf("%s_%s.tar.gz", repoMetadata.RepoName, repoMetadata.CommitHash)
 	fileZipByte := bytes.NewReader([]byte{})
 	createUploadURLReq := &grclient.CreateUploadURLReq{
 		File: fileZipName,
@@ -105,7 +105,7 @@ func TestScanCommandExecuteSuccess(t *testing.T) {
 		File:      fileZipByte,
 	}
 	triggerScanReq := &grclient.TriggerScanReq{
-		Repository: repoMetadata.Name,
+		Repository: repoMetadata.RepoName,
 		SHA:        repoMetadata.CommitHash,
 		Branch:     repoMetadata.Branch,
 		FileName:   fileZipName,
@@ -129,7 +129,7 @@ func TestScanCommandExecuteSuccess(t *testing.T) {
 	gomock.InOrder(
 		mockRepo.EXPECT().GetMetadataFromRemoteURL().Return(repoMetadata, nil),
 		mockRepo.EXPECT().ListFiles().Return(listOfFiles, nil),
-		mockArc.EXPECT().OutputZipToIOReader(repoMetadata.Path, listOfFiles).Return(fileZipByte, nil),
+		mockArc.EXPECT().OutputZipToIOReader(repoMetadata.DirPath, listOfFiles).Return(fileZipByte, nil),
 		mockGrClient.EXPECT().CreateUploadURL(ctx, createUploadURLReq).Return(createUploadURLResp, nil),
 		mockGrClient.EXPECT().UploadProject(ctx, uploadProjectReq).Return(nil),
 		mockGrClient.EXPECT().TriggerScan(ctx, triggerScanReq).Return(triggerScanResp, nil),

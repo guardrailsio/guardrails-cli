@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
@@ -40,12 +41,14 @@ type repository struct {
 
 // Metadata contains repository metadata.
 type Metadata struct {
-	Path       string
-	Protocol   string
-	Provider   string
-	Name       string
-	Branch     string
-	CommitHash string
+	DirPath     string
+	Protocol    string
+	Provider    string
+	UserAccount string
+	RemoteURL   string
+	RepoName    string
+	Branch      string
+	CommitHash  string
 }
 
 // New instantiates new repository.
@@ -59,7 +62,7 @@ func New(projectPath string) (Repository, error) {
 		return nil, err
 	}
 
-	return &repository{client: client, Metadata: &Metadata{Path: projectPath}}, nil
+	return &repository{client: client, Metadata: &Metadata{DirPath: projectPath}}, nil
 }
 
 // GetMetadataFromRemoteURL implements repository.Repository interface.
@@ -75,19 +78,8 @@ func (r *repository) GetMetadataFromRemoteURL() (*Metadata, error) {
 		return nil, ErrGitRemoteURLNotFound
 	}
 
-	remoteURL := remoteURLs[0]
-
-	re := regexp.MustCompile(`(?P<Protocol>git@|http(s)?:\/\/)(.+@)*(?P<Provider>[\w\d\.-]+)(:[\d]+){0,1}(\/scm)?\/*(?P<Name>.*)`)
-	matches := re.FindStringSubmatch(remoteURL)
-
-	protocolRe := regexp.MustCompile(`[^\w]`)
-	protocol := protocolRe.ReplaceAllString(matches[re.SubexpIndex("Protocol")], "")
-
-	providerRe := regexp.MustCompile(`^([\w\d-]+)([\.\w\d]*)`)
-	provider := providerRe.FindStringSubmatch(matches[re.SubexpIndex("Provider")])
-
-	nameRe := regexp.MustCompile(`\/(.*)\.git$`)
-	name := nameRe.FindStringSubmatch(matches[re.SubexpIndex("Name")])
+	// retrieves all possible information from git remote url.
+	getMetadataFromRemoteURL(r.Metadata, remoteURLs[0])
 
 	ref, err := r.client.Head()
 	if err != nil {
@@ -97,13 +89,39 @@ func (r *repository) GetMetadataFromRemoteURL() (*Metadata, error) {
 	branchRe := regexp.MustCompile(`([^\/]+$)`)
 	branch := branchRe.FindString(ref.Name().String())
 
-	r.Metadata.Protocol = protocol
-	r.Metadata.Provider = provider[1]
-	r.Metadata.Name = name[1]
+	r.Metadata.RemoteURL = remoteURLs[0]
 	r.Metadata.Branch = branch
 	r.Metadata.CommitHash = ref.Hash().String()
 
 	return r.Metadata, nil
+}
+
+func getMetadataFromRemoteURL(metadata *Metadata, gitRemoteURL string) {
+	re := regexp.MustCompile(`(?P<Protocol>git@|http(s)?:\/\/)(.+@)*(?P<Provider>[\w\d\.-]+)(:[\d]+){0,1}(\/scm)?\/*(?P<Name>.*)`)
+	matches := re.FindStringSubmatch(gitRemoteURL)
+
+	protocolRe := regexp.MustCompile(`[^\w]`)
+	protocol := protocolRe.ReplaceAllString(matches[re.SubexpIndex("Protocol")], "")
+
+	providerRe := regexp.MustCompile(`^([\w\d-]+)([\.\w\d]*)`)
+	provider := providerRe.FindStringSubmatch(matches[re.SubexpIndex("Provider")])
+
+	// use url parser to extract username and repository name by extracting the last 2 parts of the url
+	urlParts := strings.Split(gitRemoteURL, "/")
+
+	userAccount := urlParts[len(urlParts)-2]
+	// remove the "git@provider.com:" from user account part if exists
+	userAccountParts := strings.Split(userAccount, ":")
+	if len(userAccountParts) > 1 {
+		userAccount = userAccountParts[1]
+	}
+
+	repoName := strings.TrimSuffix(urlParts[len(urlParts)-1], ".git")
+
+	metadata.Protocol = protocol
+	metadata.Provider = provider[1]
+	metadata.UserAccount = userAccount
+	metadata.RepoName = repoName
 }
 
 // ListFiles implements repository.Repository interface.

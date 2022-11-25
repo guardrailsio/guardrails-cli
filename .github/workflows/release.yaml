@@ -31,15 +31,50 @@ jobs:
       - name: Set new version as environment variable
         run: echo "VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
+      - name: Unprotect main branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          curl --silent -o /dev/null --location --request DELETE 'https://api.github.com/repos/guardrailsio/guardrails-cli/branches/main/protection' \
+            --header "Authorization: token $GITHUB_TOKEN" \
+            --header 'Accept: application/vnd.github+json' \
+            --header 'Content-Type: application/json' \
+            --data-raw ''
+
       - name: Set new version
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          sed -i -E "s/VERSION=\".*\"/VERSION=\"${{ env.VERSION }}\"/" install.sh
-          git config --global user.email "wahyudi.ibo.wibowo@gmail.com"
-          git config --global user.name "wahyudibo"
-          git remote set-url --push origin https://wahyudibo:$GITHUB_TOKEN@github.com/wahyudibo/goreleaser-poc
+          sed -i -E "s/VERSION=\".*\"/VERSION=\"${{ env.VERSION }}\"/" etc/scripts/install.sh
+          git config --global user.email "support@guardrails.io"
+          git config --global user.name "guardrailsio"
+          git remote set-url --push origin https://$GITHUB_TOKEN@github.com/guardrailsio/guardrails-cli.git
           git checkout main
           git add .
           git commit -a -m "set version numbers: ${{ env.VERSION }}"
           git push origin main
+          
+      - name: Protect main branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          curl --silent -o /dev/null --location --silent -o /dev/null --request PUT 'https://api.github.com/repos/guardrailsio/guardrails-cli/branches/main/protection' \
+            --header "Authorization: token $GITHUB_TOKEN" \
+            --header 'Accept: application/vnd.github+json' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "required_pull_request_reviews": {
+                    "dismiss_stale_reviews": false,
+                    "require_code_owner_reviews": false,
+                    "require_last_push_approval": false,
+                    "required_approving_review_count": 1
+                },
+                "restrictions": null,
+                "enforce_admins": false,
+                "required_status_checks": {
+                    "strict": true,
+                    "contexts": [
+                        "guardrails/scan"
+                    ]
+                }
+            }'

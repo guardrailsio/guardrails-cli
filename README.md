@@ -38,7 +38,7 @@ Your GuardRails account CLI token can be obtained under `Settings`->`CLI Authent
 Just paste this command, and you're good to go. We're assuming you're using `bash`, but you can change it accordingly based on the shell you're using. You might be asked for a password for `sudo` in the installation process.
 
 ```
-curl -fsSL https://raw.githubusercontent.com/guardrailsio/guardrails-cli/master/etc/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/guardrailsio/guardrails-cli/main/etc/scripts/install.sh | bash
 ```
 
 ### Brew (Linux / OSX)
@@ -55,7 +55,7 @@ brew install guardrails
 You require [scoop](https://scoop.sh) before installing `guardrails`. The rest will be similar to the installation scripts for Linux / OSX. Execute the below command in your powershell:
 
 ```
-iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/guardrailsio/guardrails-cli/master/etc/scripts/install.ps1'))
+iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/guardrailsio/guardrails-cli/main/etc/scripts/install.ps1'))
 ```
 
 ## Usage
@@ -103,4 +103,4 @@ https://www.guardrails.io/docs/en/cli/introduction
 
 ## License
 
-The GuardRails CLI is released under the Apache 2.0 license. See [LICENSE.txt](https://github.com/guardrailsio/guardrails-cli/blob/master/LICENSE.txt)
+The GuardRails CLI is released under the Apache 2.0 license. See [LICENSE.txt](https://github.com/guardrailsio/guardrails-cli/blob/main/LICENSE.txt)

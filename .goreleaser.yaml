@@ -5,7 +5,7 @@ before:
     # You may remove this if you don't use go modules.
     - go mod tidy
     # you may remove this if you don't need go generate
-    - go generate ./...
+    # - go generate ./...
 builds:
   - env:
       - CGO_ENABLED=0
@@ -43,8 +43,8 @@ brews:
       owner: guardrailsio
       name: homebrew-guardrails
     commit_author:
-      name: wahyudibo
-      email: wahyudi.ibo.wibowo@gmail.com
+      name: guardrailsio
+      email: support@guardrails.io
     commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
     homepage: "https://www.guardrails.io/"
     license: "Apache-2.0"
@@ -54,8 +54,8 @@ scoop:
     owner: guardrailsio
     name: scoop-bucket-guardrails
   commit_author:
-    name: wahyudibo
-    email: wahyudi.ibo.wibowo@gmail.com
+    name: guardrailsio
+    email: support@guardrails.io
   commit_msg_template: "Scoop update for {{ .ProjectName }} version {{ .Tag }}"
   homepage: "https://www.guardrails.io/"
   license: Apache-2.0

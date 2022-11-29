@@ -10,7 +10,7 @@
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/guardrailsio/guardrails-cli?sort=semver)
 [![GuardRails CLI CI](https://github.com/guardrailsio/guardrails-cli/actions/workflows/ci.yaml/badge.svg)](https://github.com/guardrailsio/guardrails-cli/actions/workflows/ci.yaml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/guardrailsio/guardrails-cli)](https://goreportcard.com/report/github.com/guardrailsio/guardrails-cli) 
-[![codecov](https://codecov.io/gh/guardrailsio/guardrails-cli/branch/master/graph/badge.svg)](https://codecov.io/gh/guardrailsio/guardrails-cli)
+[![codecov](https://codecov.io/gh/guardrailsio/guardrails-cli/branch/main/graph/badge.svg)](https://codecov.io/gh/guardrailsio/guardrails-cli)
 [![GuardRails badge](https://api.guardrails.io/v2/badges/145474?token=5cdcd3c9f602bdf5dd4ec8a7d19e2e6599e571a73e8c9751f5b6d04deaf68aa6)](https://dashboard.guardrails.io/gh/guardrailsio/repos/145474)
 
 The GuardRails CLI allows you to interact with [GuardRails](https://www.guardrails.io) via the command line.
